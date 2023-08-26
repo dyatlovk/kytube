@@ -1,0 +1,45 @@
+---
+BasedOnStyle: Microsoft
+AlignAfterOpenBracket: DontAlign
+AlignEscapedNewlines: Left
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakTemplateDeclarations: Yes
+AlignOperands: true
+AlignTrailingComments: false
+BreakAfterJavaFieldAnnotations: true
+BreakBeforeBraces: Allman
+BreakInheritanceList: AfterColon
+ObjCBreakBeforeNestedBlockParam: false
+BreakBeforeInheritanceComma: false
+BreakBeforeTernaryOperators: false
+BreakConstructorInitializers: BeforeComma
+SpaceAfterTemplateKeyword: false
+PenaltyReturnTypeOnItsOwnLine: 1000
+CommentPragmas:  '^/'
+Cpp11BracedListStyle: true
+FixNamespaceComments: true
+AlwaysBreakAfterReturnType: None
+AlwaysBreakAfterDefinitionReturnType: None
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<.*\.hpp>'
+    Priority: 2
+  - Regex: '^<.*'
+    Priority: 1
+  - Regex: '.*'
+    Priority: 3
+IndentWidth: 2
+Language: Cpp
+MaxEmptyLinesToKeep: 2
+NamespaceIndentation: All
+PointerAlignment: Right
+SpaceBeforeParens: ControlStatements
+Standard: c++17
+TabWidth: 2
+UseTab: Never
+...

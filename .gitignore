@@ -1,0 +1,6 @@
+/Config.hpp
+*build*
+/.cache
+/.nvim/
+/.nvim.lua
+/compile_commands.json

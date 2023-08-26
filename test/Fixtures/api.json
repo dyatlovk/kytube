@@ -1,0 +1,115 @@
+{
+  "kind": "youtube#searchListResponse",
+  "etag": "testEtag",
+  "nextPageToken": "123",
+  "prevPageToken": "456",
+  "regionCode": "UA",
+  "pageInfo": {
+    "totalResults": 1000000,
+    "resultsPerPage": 3
+  },
+  "items": [
+    {
+      "kind": "youtube#searchResult",
+      "etag": "testEtag",
+      "id": {
+        "kind": "youtube#video",
+        "videoId": "123"
+      },
+      "snippet": {
+        "publishedAt": "2023-08-26T10:43:40Z",
+        "channelId": "123",
+        "title": "Title",
+        "description": "description",
+        "thumbnails": {
+          "default": {
+            "url": "default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          }
+        },
+        "channelTitle": "ChannelTitle",
+        "liveBroadcastContent": "none",
+        "publishTime": "2023-08-26T10:43:40Z"
+      }
+    },
+    {
+      "kind": "youtube#searchResult",
+      "etag": "testEtag",
+      "id": {
+        "kind": "youtube#playlist",
+        "playlistId": "123"
+      },
+      "snippet": {
+        "publishedAt": "2023-08-26T08:59:08Z",
+        "channelId": "123",
+        "title": "Title",
+        "description": "description",
+        "thumbnails": {
+          "default": {
+            "url": "default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          }
+        },
+        "channelTitle": "ChannelTitle",
+        "liveBroadcastContent": "none",
+        "publishTime": "2023-08-26T08:59:08Z"
+      }
+    },
+    {
+      "kind": "youtube#searchResult",
+      "etag": "testEtag",
+      "id": {
+        "kind": "youtube#video",
+        "videoId": "123"
+      },
+      "snippet": {
+        "publishedAt": "2023-08-26T13:56:06Z",
+        "channelId": "123",
+        "title": "Title",
+        "description": "description",
+        "thumbnails": {
+          "default": {
+            "url": "default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          },
+          "high": {
+            "url": "hqdefault.jpg",
+            "width": 480,
+            "height": 360
+          }
+        },
+        "channelTitle": "ChannelTitle",
+        "liveBroadcastContent": "none",
+        "publishTime": "2023-08-26T13:56:06Z"
+      }
+    }
+  ]
+}
