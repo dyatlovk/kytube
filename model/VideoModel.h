@@ -27,7 +27,9 @@ public:
   auto FindDataByIndex(const QModelIndex &index) -> const RowData;
   auto RequestApi(std::basic_string<char> uri, int max = 1, const std::string &key = "", const std::string &api = "", const std::string &pageToken = "") -> void;
   auto getParsedData() -> youtube::api::Main * { return parsedData; };
-  auto GetQuery() -> const std::string & { return currentQuery; };
+  auto GetQuery() -> std::string & { return currentQuery; };
+  [[nodiscard]] auto HasNextPage() const -> bool;
+  [[nodiscard]] auto HasPrevPage() const -> bool;
 
 private:
   QVector<RowData> m_data;

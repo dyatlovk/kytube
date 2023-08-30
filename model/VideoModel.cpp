@@ -117,7 +117,7 @@ auto VideoModel::RequestApi(std::basic_string<char> q, int max, const std::strin
   currentQuery = q;
   std::replace(q.begin(), q.end(), ' ', '+');
   std::string url = api + "?q=" + q + "&part=snippet&maxResults=" + std::to_string(max) + "&order=date&key=" + key;
-  if (pageToken.length() > 0)
+  if (!pageToken.empty())
   {
     url.append("&pageToken=" + pageToken);
   }
@@ -162,7 +162,7 @@ auto VideoModel::RequestApi(std::basic_string<char> q, int max, const std::strin
   else
   {
     std::ofstream file;
-    file.open("./api_log.json");
+    file.open("./api_log.json", std::ios_base::out | std::ios_base::ate);
     file << chunk.memory;
     file.close();
     youtube->MakeFromString(chunk.memory);
@@ -170,18 +170,18 @@ auto VideoModel::RequestApi(std::basic_string<char> q, int max, const std::strin
     parsedData = const_cast<youtube::api::Main *>(parsed);
     for (const auto &item : parsed->items)
     {
-      std::string id = "";
+      std::string id;
       if (item.id->videoId)
       {
-        id.append(item.id->videoId->c_str());
+        id.append(*item.id->videoId);
       }
       if (item.id->channelId)
       {
-        id.append(item.id->channelId->c_str());
+        id.append(*item.id->channelId);
       }
       if (item.id->playlistId)
       {
-        id.append(item.id->playlistId->c_str());
+        id.append(*item.id->playlistId);
       }
       bool isStream = item.snippet->leaveBroadcastContent == "live";
       AppendData({item.snippet->title, item.snippet->publishedAt, item.snippet->channelTitle, id, isStream});
@@ -196,6 +196,22 @@ auto VideoModel::RequestApi(std::basic_string<char> q, int max, const std::strin
 
   /* we are done with libcurl, so clean it up */
   curl_global_cleanup();
+}
+
+auto VideoModel::HasNextPage() const -> bool
+{
+  if (!parsedData)
+    return false;
+
+  return !parsedData->nextPageToken.empty();
+}
+
+auto VideoModel::HasPrevPage() const -> bool
+{
+  if (!parsedData)
+    return false;
+
+  return !parsedData->prevPageToken.empty();
 }
 
 static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)

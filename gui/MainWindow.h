@@ -38,7 +38,7 @@ private:
 
   auto ShowContentMenu(const QPoint &pos) -> void;
 
-  auto CloseWindow() -> void;
+  static auto CloseWindow() -> void;
 
   auto onPageNext() -> void;
 

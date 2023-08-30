@@ -25,13 +25,11 @@ namespace youtube
       for (const auto &it : main.items)
       {
         delete it.snippet;
-        if(it.id->videoId) delete it.id->videoId;
-        if(it.id->channelId) delete it.id->channelId;
-        if(it.id->playlistId) delete it.id->playlistId;
+        delete it.id->videoId;
+        delete it.id->channelId;
+        delete it.id->playlistId;
         delete it.id;
       }
-      if(main.nextPageToken) delete main.nextPageToken;
-      if(main.prevPageToken) delete main.prevPageToken;
       main.items.clear();
     };
 
@@ -39,7 +37,17 @@ namespace youtube
 
     auto MakeFromString(const std::string &buffer) -> void
     {
-      const auto j = json::parse(buffer);
+      json j;
+
+      try
+      {
+        j = json::parse(buffer);
+      }
+      catch (json::parse_error &ex)
+      {
+        std::cout << "parse error at byte " << ex.byte << std::endl;
+        return;
+      }
 
       if (j.contains("error"))
       {
@@ -52,11 +60,11 @@ namespace youtube
       main.etag = j["etag"].get<std::string>();
       if (j.contains("nextPageToken"))
       {
-        main.nextPageToken = new std::string(j["nextPageToken"].get<std::string>());
+        main.nextPageToken = j["nextPageToken"].get<std::string>();
       }
       if (j.contains("prevPageToken"))
       {
-        main.prevPageToken = new std::string(j["prevPageToken"].get<std::string>());
+        main.prevPageToken = j["prevPageToken"].get<std::string>();
       }
       main.regionCode = j["regionCode"].get<std::string>();
 
@@ -109,8 +117,8 @@ namespace youtube
     {
       std::string kind;
       std::string etag;
-      std::string *nextPageToken = nullptr;
-      std::string *prevPageToken = nullptr;
+      std::string nextPageToken;
+      std::string prevPageToken;
       std::string regionCode;
       Page *pageInfo = nullptr;
       std::vector<Item> items;

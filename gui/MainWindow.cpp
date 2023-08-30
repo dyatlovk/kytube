@@ -41,40 +41,13 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-  if (settings)
-  {
-    delete settings;
-  }
-
-  if (videoModel)
-  {
-    delete videoModel;
-  }
-
-  if (preferences)
-  {
-    delete preferences;
-  }
-
-  if (log)
-  {
-    delete log;
-  }
-
-  if (about)
-  {
-    delete about;
-  }
-
-  if (logModel)
-  {
-    delete logModel;
-  }
-
-  if (main)
-  {
-    delete main;
-  }
+  delete settings;
+  delete videoModel;
+  delete preferences;
+  delete log;
+  delete about;
+  delete logModel;
+  delete main;
 }
 
 void MainWindow::OnAbout()
@@ -130,8 +103,6 @@ auto MainWindow::ShowContentMenu(const QPoint &pos) -> void
   QAction infoAction("Info", this);
   contextMenu.addSeparator();
   contextMenu.addAction(&infoAction);
-  auto hostRect = main->centralwidget->geometry();
-  auto widgetRect = contextMenu.geometry();
   contextMenu.move(pos.x(), pos.y() + contextMenu.geometry().height());
   contextMenu.exec(mapToGlobal(pos));
   delete mpv;
@@ -147,18 +118,6 @@ auto MainWindow::OnSearchTrigger() -> void
   try
   {
     videoModel->RequestApi(q.toStdString(), resultsPerPage, apiKey.toStdString(), searchUrl.toStdString());
-    if (videoModel->getParsedData())
-    {
-      if (videoModel->getParsedData()->prevPageToken)
-      {
-        main->prevPageButton->setDisabled(false);
-      }
-
-      if (videoModel->getParsedData()->nextPageToken)
-      {
-        main->nextPageButton->setDisabled(false);
-      }
-    }
   }
   catch (youtube::Exception &err)
   {
@@ -166,6 +125,9 @@ auto MainWindow::OnSearchTrigger() -> void
     std::time_t now = std::time(nullptr);
     logModel->AppendData({std::ctime(&now), err.what()->reason, err.what()->message});
   }
+
+  main->prevPageButton->setDisabled(!videoModel->HasPrevPage());
+  main->nextPageButton->setDisabled(!videoModel->HasNextPage());
 
   main->videoList->resizeColumnsToContents();
 }
@@ -190,7 +152,7 @@ auto MainWindow::onPageNext() -> void
   if (!videoModel->getParsedData())
     return;
   const auto pageToken = videoModel->getParsedData()->nextPageToken;
-  if (!pageToken)
+  if (pageToken.empty())
     return;
 
   const auto q = videoModel->GetQuery();
@@ -201,7 +163,7 @@ auto MainWindow::onPageNext() -> void
 
   try
   {
-    videoModel->RequestApi(q, resultsPerPage, apiKey.toStdString(), searchUrl.toStdString(), *pageToken);
+    videoModel->RequestApi(q, resultsPerPage, apiKey.toStdString(), searchUrl.toStdString(), pageToken);
   }
   catch (youtube::Exception &err)
   {
@@ -209,6 +171,10 @@ auto MainWindow::onPageNext() -> void
     std::time_t now = std::time(nullptr);
     logModel->AppendData({std::ctime(&now), err.what()->reason, err.what()->message});
   }
+
+  main->prevPageButton->setDisabled(!videoModel->HasPrevPage());
+  main->nextPageButton->setDisabled(!videoModel->HasNextPage());
+
   main->videoList->resizeColumnsToContents();
 }
 
@@ -217,7 +183,7 @@ auto MainWindow::onPagePrev() -> void
   if (!videoModel->getParsedData())
     return;
   const auto pageToken = videoModel->getParsedData()->prevPageToken;
-  if (!pageToken)
+  if (pageToken.empty())
     return;
 
   const auto q = videoModel->GetQuery();
@@ -228,7 +194,7 @@ auto MainWindow::onPagePrev() -> void
 
   try
   {
-    videoModel->RequestApi(q, resultsPerPage, apiKey.toStdString(), searchUrl.toStdString(), *pageToken);
+    videoModel->RequestApi(q, resultsPerPage, apiKey.toStdString(), searchUrl.toStdString(), pageToken);
   }
   catch (youtube::Exception &err)
   {
@@ -236,6 +202,10 @@ auto MainWindow::onPagePrev() -> void
     std::time_t now = std::time(nullptr);
     logModel->AppendData({std::ctime(&now), err.what()->reason, err.what()->message});
   }
+
+  main->prevPageButton->setDisabled(!videoModel->HasPrevPage());
+  main->nextPageButton->setDisabled(!videoModel->HasNextPage());
+
   main->videoList->resizeColumnsToContents();
 }
 

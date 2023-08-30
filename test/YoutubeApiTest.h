@@ -30,8 +30,8 @@ namespace TestYoutubeQt
 
     ASSERT_EQ_CHAR(parsed->kind.c_str(), "youtube#searchListResponse", "Read Kind field");
     ASSERT_EQ_CHAR(parsed->etag.c_str(), "testEtag", "Read etag field");
-    ASSERT_EQ_CHAR(parsed->nextPageToken->c_str(), "123", "Read nextPageToken field");
-    ASSERT_EQ_CHAR(parsed->prevPageToken->c_str(), "456", "Read nextPageToken field");
+    ASSERT_EQ_CHAR(parsed->nextPageToken.c_str(), "123", "Read nextPageToken field");
+    ASSERT_EQ_CHAR(parsed->prevPageToken.c_str(), "456", "Read nextPageToken field");
     ASSERT_EQ_CHAR(parsed->regionCode.c_str(), "UA", "Read region code field");
     ASSERT_EQ_INT(parsed->pageInfo->resultsPerPage, 3, "Read results per page field");
     ASSERT_EQ_INT(parsed->pageInfo->totalResults, 1000000, "Read total results field");
@@ -66,8 +66,8 @@ namespace TestYoutubeQt
 
     ASSERT_EQ_CHAR(parsed->kind.c_str(), "youtube#searchListResponse", "Read Kind field");
     ASSERT_EQ_CHAR(parsed->etag.c_str(), "testEtag", "Read etag field");
-    ASSERT_EQ_CHAR(parsed->nextPageToken->c_str(), "123", "Read nextPageToken field");
-    ASSERT_EQ_CHAR(parsed->prevPageToken->c_str(), "456", "Read nextPageToken field");
+    ASSERT_EQ_CHAR(parsed->nextPageToken.c_str(), "123", "Read nextPageToken field");
+    ASSERT_EQ_CHAR(parsed->prevPageToken.c_str(), "456", "Read nextPageToken field");
     ASSERT_EQ_CHAR(parsed->regionCode.c_str(), "UA", "Read region code field");
     ASSERT_EQ_INT(parsed->pageInfo->resultsPerPage, 3, "Read results per page field");
     ASSERT_EQ_INT(parsed->pageInfo->totalResults, 1000000, "Read total results field");
