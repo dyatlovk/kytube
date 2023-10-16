@@ -5,11 +5,12 @@
 #include <QWidget>
 
 #include "../forms/ui_main.h"
-#include "../model/VideoModel.h"
 #include "../model/LogModel.h"
+#include "../model/VideoModel.h"
 #include "AboutDialog.h"
 #include "Log.h"
 #include "Preferences.h"
+#include "ViewHistory.h"
 
 namespace Ui
 {
@@ -44,6 +45,8 @@ private:
 
   auto onPagePrev() -> void;
 
+  auto onViewsHistory() -> void;
+
   Ui::MainWindow *main;
   Log *log;
   LogModel *logModel;
@@ -51,4 +54,5 @@ private:
   AboutDialog *about;
   Preferences *preferences;
   VideoModel *videoModel;
+  ViewHistory *viewHistory;
 };

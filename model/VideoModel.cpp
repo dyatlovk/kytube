@@ -104,7 +104,7 @@ auto VideoModel::ResetModel() -> void
   this->endResetModel();
 }
 
-auto VideoModel::FindDataByIndex(const QModelIndex &index) -> const RowData
+auto VideoModel::FindDataByIndex(const QModelIndex &index) const -> RowData
 {
   const auto found = m_data.at(index.row());
 

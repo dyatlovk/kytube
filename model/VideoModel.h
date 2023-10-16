@@ -24,7 +24,7 @@ public:
   [[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
   auto AppendData(const RowData &data) -> void;
   auto ResetModel() -> void;
-  auto FindDataByIndex(const QModelIndex &index) -> const RowData;
+  [[nodiscard]] auto FindDataByIndex(const QModelIndex &index) const -> RowData;
   auto RequestApi(std::basic_string<char> uri, int max = 1, const std::string &key = "", const std::string &api = "", const std::string &pageToken = "") -> void;
   auto getParsedData() -> youtube::api::Main * { return parsedData; };
   auto GetQuery() -> std::string & { return currentQuery; };

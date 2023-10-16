@@ -3,7 +3,7 @@ project(YouTubeQt)
 
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 1)
-set(VERSION_PATCH 0)
+set(VERSION_PATCH 1)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -44,6 +44,7 @@ add_executable(${PROJECT_NAME}
         gui/AboutDialog.cpp
         gui/Preferences.cpp
         gui/Log.cpp
+        gui/ViewHistory.cpp
         model/VideoModel.cpp
         model/LogModel.cpp
 )

@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     , about(nullptr)
     , preferences(nullptr)
     , videoModel(nullptr)
+    , viewHistory(nullptr)
 {
   main->setupUi(this);
   logModel = new LogModel;
@@ -37,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
   connect(main->actionLog, &QAction::triggered, this, &MainWindow::OnLog);
   connect(main->nextPageButton, &QPushButton::released, this, &MainWindow::onPageNext);
   connect(main->prevPageButton, &QPushButton::released, this, &MainWindow::onPagePrev);
+  connect(main->actionViews, &QAction::triggered, this, &MainWindow::onViewsHistory);
 }
 
 MainWindow::~MainWindow()
@@ -44,7 +46,6 @@ MainWindow::~MainWindow()
   delete settings;
   delete videoModel;
   delete preferences;
-  delete log;
   delete about;
   delete logModel;
   delete main;
@@ -137,6 +138,7 @@ auto MainWindow::OnLog() -> void
   log = new Log();
   log->GetUi()->logTable->setModel(logModel);
   log->setWindowTitle(tr("YouTubeQt - Log"));
+  log->setAttribute(Qt::WA_DeleteOnClose);
   log->show();
 
   connect(log->GetUi()->closeButton, &QPushButton::released, this,
@@ -207,6 +209,20 @@ auto MainWindow::onPagePrev() -> void
   main->nextPageButton->setDisabled(!videoModel->HasNextPage());
 
   main->videoList->resizeColumnsToContents();
+}
+
+auto MainWindow::onViewsHistory() -> void
+{
+  viewHistory = new ViewHistory;
+  viewHistory->show();
+  viewHistory->setAttribute(Qt::WA_DeleteOnClose);
+
+  connect(viewHistory->GetUi()->closeButton, &QPushButton::released, this,
+      [this]()
+      {
+        viewHistory->close();
+        delete viewHistory;
+      });
 }
 
 auto MainWindow::CloseWindow() -> void

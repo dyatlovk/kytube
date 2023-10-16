@@ -262,6 +262,7 @@
     <property name="title">
      <string>History</string>
     </property>
+    <addaction name="actionViews"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -315,6 +316,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionViews">
+   <property name="text">
+    <string>Views</string>
    </property>
   </action>
  </widget>
