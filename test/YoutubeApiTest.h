@@ -3,6 +3,7 @@
 
 #include <json/single_include/nlohmann/json.hpp>
 
+#include "../Config.hpp"
 #include "../youtube/YoutubeApi.h"
 #include "mtTestSuite.h"
 

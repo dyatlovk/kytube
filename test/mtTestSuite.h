@@ -23,7 +23,7 @@ void name() { \
     printf("\n" ANSI_COLOR_RESET); \
 }
 
-void ASSERT_EQ_INT(int actual, int expected, const char *message) {
+inline void ASSERT_EQ_INT(int actual, int expected, const char *message) {
     if (expected != actual) {
         printf(ANSI_COLOR_RED "Assertion failed: %s\n" ANSI_COLOR_RESET, message);
         return;
@@ -32,7 +32,7 @@ void ASSERT_EQ_INT(int actual, int expected, const char *message) {
     printf(ANSI_COLOR_WHITE "Assertion passed: %s\n" ANSI_COLOR_RESET, message);
 }
 
-void ASSERT_EQ_FLOAT(float actual, float expected, const char *message) {
+inline void ASSERT_EQ_FLOAT(float actual, float expected, const char *message) {
     if (expected != actual) {
         printf(ANSI_COLOR_RED "Assertion failed: %s\n" ANSI_COLOR_RESET, message);
         return;
@@ -41,7 +41,7 @@ void ASSERT_EQ_FLOAT(float actual, float expected, const char *message) {
     printf(ANSI_COLOR_WHITE "Assertion passed: %s\n" ANSI_COLOR_RESET, message);
 }
 
-void ASSERT_EQ_CHAR(const char *actual, const char *expected, const char *message) {
+inline void ASSERT_EQ_CHAR(const char *actual, const char *expected, const char *message) {
     if (strcmp(expected, actual) != 0) {
         printf(ANSI_COLOR_RED "Assertion failed: %s\n" ANSI_COLOR_RESET, message);
         return;
@@ -50,7 +50,7 @@ void ASSERT_EQ_CHAR(const char *actual, const char *expected, const char *messag
     printf(ANSI_COLOR_WHITE "Assertion passed: %s\n" ANSI_COLOR_RESET, message);
 }
 
-void ASSERT_TRUE(bool actual, const char *message) {
+inline void ASSERT_TRUE(bool actual, const char *message) {
     if (actual != true) {
         printf(ANSI_COLOR_RED "Assertion failed: %s\n" ANSI_COLOR_RESET, message);
         return;
@@ -59,7 +59,7 @@ void ASSERT_TRUE(bool actual, const char *message) {
     printf(ANSI_COLOR_WHITE "Assertion passed: %s\n" ANSI_COLOR_RESET, message);
 }
 
-void ASSERT_FALSE(bool actual, const char *message) {
+inline void ASSERT_FALSE(bool actual, const char *message) {
     if (actual != false) {
         printf(ANSI_COLOR_RED "Assertion failed: %s\n" ANSI_COLOR_RESET, message);
         return;
