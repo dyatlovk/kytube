@@ -1,11 +1,14 @@
-#include "../Config.hpp"
-#include "JsonTest.h"
-#include "YoutubeApiTest.h"
+#include "network/request.hpp"
+#include "piped/search.hpp"
 
 int main()
 {
-  TestYoutubeQt::ParseJsonSimple();
-  TestYoutubeQt::ParseApiVideo();
-  TestYoutubeQt::ParseApiPlayList();
+  TestNetwork::Get();
+  TestNetwork::UrlDecode();
+  TestNetwork::UrlEncode();
+  TestNetwork::UrlEncodeCyrrylic();
+  TestNetwork::UrlDecodeCyrrylic();
+  TestPipedSearch::ParseFromDump();
+  TestPipedSearch::ParseRequest();
   return 0;
 }

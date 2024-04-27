@@ -5,7 +5,5 @@
 namespace YoutubeQt
 {
   constexpr std::string_view ROOT_DIR = "@PROJECT_SOURCE_DIR@";
-  constexpr std::string_view APP_NAME = "@PROJECT_NAME@";
-  constexpr std::string_view DOMAIN_NAME = "@DOMAIN_NAME@";
   constexpr std::string_view VERSION = "@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@";
 } // namespace YoutubeQT

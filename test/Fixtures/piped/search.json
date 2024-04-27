@@ -1,0 +1,39 @@
+{
+    "items": [
+        {
+            "url": "/watch?v=123",
+            "type": "stream",
+            "title": "Title",
+            "thumbnail": "thumbnail_link",
+            "uploaderName": "Name",
+            "uploaderUrl": "/channel/id",
+            "uploaderAvatar": "avatar_link",
+            "uploadedDate": "2 years ago",
+            "shortDescription": "description",
+            "duration": 3150,
+            "views": 1586334,
+            "uploaded": 1650319200000,
+            "uploaderVerified": true,
+            "isShort": false
+        },
+        {
+            "url": "/watch?v=123",
+            "type": "stream",
+            "title": "Title2",
+            "thumbnail": "thumbnail_link",
+            "uploaderName": "Name",
+            "uploaderUrl": "/channel/id",
+            "uploaderAvatar": "avatar_link",
+            "uploadedDate": null,
+            "shortDescription": "description",
+            "duration": 3150,
+            "views": 1586334,
+            "uploaded": 1650319200000,
+            "uploaderVerified": true,
+            "isShort": false
+        }
+    ],
+    "nextpage": "nextpage_url",
+    "suggestion": "",
+    "corrected": false
+}
