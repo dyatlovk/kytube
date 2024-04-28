@@ -148,9 +148,11 @@ namespace ui
 
   auto MainWindow::OnHistory() -> void
   {
+    historyModel->RestoreFromDisk();
     history->Show();
     history->GetUi()->plainTextEdit->setPlainText(historyModel->Get().c_str());
-    connect(history->GetUi()->closeButton, &QPushButton::released, this, [this]() { history->close(); });
+    connect(history->GetUi()->closeButton, &QPushButton::released, this, [this]() { history->hide(); });
+    history->OnClose([this]() { historyModel->FlushOnDisk(); });
   }
 
   auto MainWindow::OnPreferences() -> void

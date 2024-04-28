@@ -23,4 +23,14 @@ namespace ui
   {
     this->show();
   }
+
+  auto History::hideEvent(QHideEvent *event) -> void
+  {
+    onClose();
+  }
+
+  auto History::OnClose(std::function<void()> callback) -> void
+  {
+    onClose = callback;
+  }
 } // namespace ui

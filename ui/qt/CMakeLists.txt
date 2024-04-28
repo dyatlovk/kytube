@@ -31,6 +31,7 @@ add_executable(
     controllers/preferences.cpp
     models/search.cpp
     models/log.cpp
+    models/history.cpp
 )
 target_include_directories(${PROJECT_NAME} PUBLIC ${EXTERNAL_DIR} ${PROJECT_ROOT})
 target_link_libraries(${PROJECT_NAME}
