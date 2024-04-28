@@ -27,14 +27,16 @@ namespace ui
 
     ~Log() override;
 
+    auto Close() -> void;
+
     auto GetUi() -> Ui::Log * { return this->ui; };
 
-    auto Add(const LogFields &field) -> void;
+    auto hideEvent(QHideEvent *event) -> void override;
 
-    auto Clear() -> void { m_logs.clear(); };
+    auto OnClose(std::function<void()> callback) -> void;
 
   private:
     Ui::Log *ui;
-    std::vector<LogFields> m_logs;
+    std::function<void()> onClose;
   };
 } // namespace ui

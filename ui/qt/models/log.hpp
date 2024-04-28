@@ -1,11 +1,11 @@
 #pragma once
 
-#include <qabstractitemmodel.h>
+#include <filesystem>
+
 namespace models
 {
-  class log : public QAbstractTableModel
+  class log
   {
-    Q_OBJECT
   public:
     struct RowData
     {
@@ -14,22 +14,21 @@ namespace models
       std::string message;
     };
 
-    explicit log(QObject *parent = nullptr);
+    log();
 
-    [[nodiscard]] int rowCount(const QModelIndex &parent) const override;
+    ~log();
 
-    [[nodiscard]] int columnCount(const QModelIndex &parent) const override;
+    auto Append(const RowData &data) -> std::string;
 
-    [[nodiscard]] QVariant data(const QModelIndex &index, int role) const override;
+    auto FlushOnDisk() -> void;
 
-    [[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-    auto AppendData(const RowData &data) -> void;
+    auto RestoreFromDisk() -> void;
 
-    auto ResetModel() -> void;
-
-    auto FindDataByIndex(const QModelIndex &index) -> const RowData;
+    auto GetMessages() -> std::string;
 
   private:
-    QVector<RowData> m_data;
+    std::string data_;
+    std::filesystem::path file_;
+    std::filesystem::path cfgRoot_;
   };
 } // namespace models

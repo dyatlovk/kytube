@@ -14,8 +14,18 @@ namespace ui
     delete ui;
   }
 
-  auto Log::Add(const LogFields &field) -> void
+  auto Log::hideEvent(QHideEvent *event) -> void
   {
-    m_logs.push_back(field);
+    onClose();
+  }
+
+  auto Log::OnClose(std::function<void()> callback) -> void
+  {
+    onClose = callback;
+  }
+
+  auto Log::Close() -> void
+  {
+    close();
   }
 } // namespace ui

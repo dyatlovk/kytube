@@ -1,6 +1,9 @@
 #include "main_window.hpp"
 
+#include <string>
+
 #include "../Config.hpp"
+#include "core/datetime/datetime.hpp"
 #include "core/network/request.hpp"
 #include "core/players/mpv.hpp"
 
@@ -11,21 +14,17 @@ namespace ui
       , main(new Ui::MainWindow)
       , about(nullptr)
       , history(new History)
-      , log(nullptr)
-      , videoModel(nullptr)
-      , logModel(nullptr)
-      , historyModel(nullptr)
+      , log(new Log)
+      , videoModel(new models::search())
+      , logModel(new models::log)
+      , historyModel(new models::history)
       , preferences(nullptr)
-      , settings(nullptr)
+      , settings(new QSettings(DOMAIN_NAME, CONFIG_NAME))
   {
     main->setupUi(this);
     main->videoList->setContextMenuPolicy(Qt::CustomContextMenu);
-    videoModel = new models::search();
-    logModel = new models::log;
-    logModel->AppendData({"2024-04-27", "Info", "App starting"});
-    historyModel = new models::history;
+    log->GetUi()->logContent->setPlainText(logModel->Append({core::datetime::Now(), "Info", "App starting"}).c_str());
     main->videoList->setModel(videoModel);
-    settings = new QSettings(DOMAIN_NAME, CONFIG_NAME);
 
     connect(main->searchButton, &QPushButton::released, this, &MainWindow::OnSearchTrigger);
     connect(main->actionQuit, &QAction::triggered, this, &MainWindow::CloseWindow);
@@ -42,6 +41,7 @@ namespace ui
     delete settings;
     delete historyModel;
     delete logModel;
+    delete log;
     delete videoModel;
     delete history;
     delete main;
@@ -56,11 +56,14 @@ namespace ui
     std::string url = settings->value("Piped/apiUrl").toString().toStdString() + "/search?q=";
     url.append(query);
     url.append("&filter=videos");
-    historyModel->Append(q.toStdString());
-    history->GetUi()->plainTextEdit->setPlainText(historyModel->Get().c_str());
+    history->GetUi()->plainTextEdit->setPlainText(historyModel->Append(q.toStdString()).c_str());
     videoModel->ResetModel();
-    logModel->AppendData({"2024-04-27", "Info", "Searching " + q.toStdString()});
+    log->GetUi()->logContent->setPlainText(
+        logModel->Append({core::datetime::Now(), "Info", "Searching " + q.toStdString()}).c_str());
     videoModel->Search(url, q.toStdString());
+    const auto foundSize = std::to_string(videoModel->GetParsedData().items.size());
+    log->GetUi()->logContent->setPlainText(
+        logModel->Append({core::datetime::Now(), "Info", "Found " + foundSize + " items"}).c_str());
     main->videoList->resizeColumnsToContents();
   }
 
@@ -77,8 +80,12 @@ namespace ui
     url.append("&q=" + query);
     url.append("&filter=videos");
     videoModel->ResetModel();
-    logModel->AppendData({"2024-04-27", "Info", "Searching " + query});
+    log->GetUi()->logContent->setPlainText(
+        logModel->Append({core::datetime::Now(), "Info", "Searching " + query}).c_str());
     videoModel->Search(url, videoModel->GetQuery());
+    const auto foundSize = std::to_string(videoModel->GetParsedData().items.size());
+    log->GetUi()->logContent->setPlainText(
+        logModel->Append({core::datetime::Now(), "Info", "Found " + foundSize + " items"}).c_str());
     main->videoList->resizeColumnsToContents();
   }
 
@@ -101,6 +108,8 @@ namespace ui
         {
           const std::string url = settings->value("Piped/streamUrl").toString().toStdString() + data.url;
           mpv->Handler(url.c_str());
+          log->GetUi()->logContent->setPlainText(
+              logModel->Append({core::datetime::Now(), "Info", "Running stream" + url}).c_str());
         });
     contextMenu.addAction(&playAction);
     QAction infoAction("Info", this);
@@ -132,25 +141,18 @@ namespace ui
 
   auto MainWindow::OnLog() -> void
   {
-    log = new Log();
-    log->GetUi()->logTable->setModel(logModel);
     log->setWindowTitle(tr("YouTubeQt - Log"));
-    log->setAttribute(Qt::WA_DeleteOnClose);
+    log->GetUi()->logContent->setPlainText(logModel->GetMessages().c_str());
     log->show();
 
-    connect(log->GetUi()->closeButton, &QPushButton::released, this,
-        [this]()
-        {
-          log->close();
-          delete log;
-        });
+    connect(log->GetUi()->closeButton, &QPushButton::released, this, [this]() { log->hide(); });
+    log->OnClose([this]() { logModel->FlushOnDisk(); });
   }
 
   auto MainWindow::OnHistory() -> void
   {
-    historyModel->RestoreFromDisk();
-    history->Show();
     history->GetUi()->plainTextEdit->setPlainText(historyModel->Get().c_str());
+    history->Show();
     connect(history->GetUi()->closeButton, &QPushButton::released, this, [this]() { history->hide(); });
     history->OnClose([this]() { historyModel->FlushOnDisk(); });
   }
@@ -170,6 +172,8 @@ namespace ui
 
   void MainWindow::closeEvent(QCloseEvent *event)
   {
+    logModel->Append({core::datetime::Now(), "Info", "App closed"});
+    logModel->FlushOnDisk();
     QWidget::closeEvent(event);
     CloseWindow();
   }

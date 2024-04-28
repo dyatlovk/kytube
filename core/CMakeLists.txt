@@ -10,6 +10,7 @@ find_package(CURL REQUIRED)
 file(GLOB SOURCES
     network/request.cpp
     players/mpv.cpp
+    datetime/datetime.cpp
 )
 
 add_library(${PROJECT_NAME} ${TECH_LIBRARY_TYPE} ${SOURCES})

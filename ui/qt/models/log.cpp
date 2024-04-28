@@ -1,75 +1,58 @@
 #include "log.hpp"
 
+#include <fstream>
+#include <iostream>
+#include <qsettings.h>
+
 namespace models
 {
-  log::log(QObject *parent)
-      : QAbstractTableModel(parent)
+  log::log()
+      : file_("")
+      , cfgRoot_("")
   {
+    const auto settings = new QSettings(DOMAIN_NAME, CONFIG_NAME);
+    auto settingsFile = settings->fileName();
+    cfgRoot_ = std::filesystem::path(settingsFile.toStdString()).parent_path();
+    file_ = cfgRoot_.append("app.log");
+    delete settings;
+    RestoreFromDisk();
   }
 
-  int log::rowCount(const QModelIndex &parent) const
+  log::~log() {}
+
+  auto log::Append(const RowData &data) -> std::string
   {
-    return m_data.count();
+    std::string line;
+    line.append(data.date + " ");
+    line.append(data.reason + " ");
+    line.append(data.message + "\n");
+    data_.append(line);
+    return line;
   }
 
-  int log::columnCount(const QModelIndex &parent) const
+  auto log::FlushOnDisk() -> void
   {
-    return 3;
+    std::ofstream log;
+    log.open(file_, std::ios_base::ate);
+    log << data_;
+    log.close();
   }
 
-  QVariant log::data(const QModelIndex &index, int role) const
+  auto log::RestoreFromDisk() -> void
   {
-    int row = index.row();
-    int col = index.column();
-    const auto dataRow = m_data.at(row);
-
-    if (role == Qt::DisplayRole)
+    std::string line;
+    std::ifstream log;
+    log.open(file_);
+    data_.clear();
+    while (std::getline(log, line))
     {
-      if (col == 0)
-      {
-        return QString(dataRow.date.c_str());
-      }
-      if (col == 1)
-      {
-        return QString(dataRow.reason.c_str());
-      }
-      if (col == 2)
-      {
-        return QString(dataRow.message.c_str());
-      }
+      data_.append(line + "\n");
     }
-
-    return {};
+    log.close();
   }
 
-  QVariant log::headerData(int section, Qt::Orientation orientation, int role) const
+  auto log::GetMessages() -> std::string
   {
-    switch (section)
-    {
-    case 0:
-      return QString("Date");
-    case 1:
-      return QString("Reason");
-    case 2:
-      return QString("Message");
-    }
-
-    return {};
-  }
-
-  auto log::AppendData(const RowData &data) -> void
-  {
-    int row = rowCount(QModelIndex());
-    beginInsertRows(QModelIndex(), row, row);
-    m_data.push_back(data);
-    endInsertRows();
-  }
-
-  auto log::ResetModel() -> void
-  {
-    m_data.clear();
-    this->beginResetModel();
-    this->resetInternalData();
-    this->endResetModel();
+    return data_;
   }
 } // namespace models

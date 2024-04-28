@@ -16,7 +16,7 @@ namespace models
 
     auto Clear() -> void { data_.clear(); }
 
-    auto Append(const std::string &text) -> void;
+    auto Append(const std::string &text) -> std::string;
 
     auto FlushOnDisk() -> void;
 

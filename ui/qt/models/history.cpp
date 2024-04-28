@@ -15,23 +15,21 @@ namespace models
     cfgRoot_ = std::filesystem::path(settingsFile.toStdString()).parent_path();
     file_ = cfgRoot_.append("history.log");
     delete settings;
+    RestoreFromDisk();
   }
 
   history::~history() {}
 
-  auto history::Append(const std::string &text) -> void
+  auto history::Append(const std::string &text) -> std::string
   {
     data_.append(text + "\n");
-    std::ofstream log;
-    log.open(file_, std::ios_base::ate);
-    log << data_;
-    log.close();
+    return text;
   }
 
   auto history::FlushOnDisk() -> void
   {
     std::ofstream log;
-    log.open(file_, std::ios_base::in);
+    log.open(file_, std::ios_base::ate);
     log << data_;
     log.close();
   }

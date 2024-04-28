@@ -1,5 +1,6 @@
 #include "network/request.hpp"
 #include "piped/search.hpp"
+#include "test/datetime/datetime.hpp"
 
 int main()
 {
@@ -10,5 +11,6 @@ int main()
   TestNetwork::UrlDecodeCyrrylic();
   TestPipedSearch::ParseFromDump();
   TestPipedSearch::ParseRequest();
+  TestDateTime::Format();
   return 0;
 }
