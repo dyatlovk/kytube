@@ -6,33 +6,36 @@
 
 namespace TestNetwork
 {
-  TEST_CASE(Get, {
+  inline TEST_CASE(Get, {
     auto request = new network::request();
     auto result = request->Get("https://httpbin.org/base64/b2s=");
     ASSERT_EQ_CHAR(result.c_str(), "ok", "Get");
     delete request;
   })
 
-  TEST_CASE(UrlEncode, {
+  inline TEST_CASE(UrlEncode, {
     auto request = new network::request();
     auto url = network::request::UrlEncode("test");
     ASSERT_EQ_CHAR(url.c_str(), "test", "Encode");
+    delete request;
   })
 
-  TEST_CASE(UrlDecode, {
+  inline TEST_CASE(UrlDecode, {
     auto url = network::request::UrlDecode("test");
     ASSERT_EQ_CHAR(url.c_str(), "test", "Decode");
   })
 
-  TEST_CASE(UrlEncodeCyrrylic, {
+  inline TEST_CASE(UrlEncodeCyrrylic, {
     auto request = new network::request();
     auto url = network::request::UrlEncode("тест");
     ASSERT_EQ_CHAR(url.c_str(), "%D1%82%D0%B5%D1%81%D1%82", "Encode Cyryllic");
+    delete request;
   })
 
-  TEST_CASE(UrlDecodeCyrrylic, {
+  inline TEST_CASE(UrlDecodeCyrrylic, {
     auto request = new network::request();
     auto url = network::request::UrlDecode("%D1%82%D0%B5%D1%81%D1%82");
     ASSERT_EQ_CHAR(url.c_str(), "тест", "Decode Cyryllic");
+    delete request;
   })
 } // namespace TestNetwork
