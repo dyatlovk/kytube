@@ -7,7 +7,7 @@
 #include <json/single_include/nlohmann/json.hpp>
 
 #include "../Config.hpp"
-#include "../mtTestSuite.h"
+#include "../../mtTestSuite.h"
 
 namespace TestPipedSearch
 {

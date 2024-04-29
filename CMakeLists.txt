@@ -23,6 +23,6 @@ add_subdirectory(ui/qt)
 
 option(YOUTUBE_QT_BUILD_TESTS "Build unit tests" OFF)
 if (YOUTUBE_QT_BUILD_TESTS)
-    add_subdirectory(test)
     enable_testing()
+    add_subdirectory(test)
 endif ()

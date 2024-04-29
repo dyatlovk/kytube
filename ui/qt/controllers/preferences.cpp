@@ -28,4 +28,5 @@ namespace ui
     settings->setValue("streamUrl", ui->streamUrlEdit->text());
     settings->endGroup();
   }
+
 } // namespace ui

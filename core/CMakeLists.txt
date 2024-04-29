@@ -13,7 +13,7 @@ file(GLOB SOURCES
     datetime/datetime.cpp
 )
 
-add_library(${PROJECT_NAME} ${TECH_LIBRARY_TYPE} ${SOURCES})
+add_library(${PROJECT_NAME} ${SOURCES})
 add_library(qtube::core ALIAS ${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PUBLIC ${EXTERNAL_DIR})
 target_link_libraries(${PROJECT_NAME} ${CURL_LIBRARIES})

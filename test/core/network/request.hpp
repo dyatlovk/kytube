@@ -2,7 +2,7 @@
 
 #include <core/network/request.hpp>
 
-#include "../mtTestSuite.h"
+#include "../../mtTestSuite.h"
 
 namespace TestNetwork
 {

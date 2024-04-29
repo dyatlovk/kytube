@@ -1,5 +1,7 @@
 #include "main_window.hpp"
 
+#include <filesystem>
+#include <qnamespace.h>
 #include <string>
 
 #include "../Config.hpp"
@@ -23,8 +25,14 @@ namespace ui
   {
     main->setupUi(this);
     main->videoList->setContextMenuPolicy(Qt::CustomContextMenu);
-    log->GetUi()->logContent->setPlainText(logModel->Append({core::datetime::Now(), "Info", "App starting"}).c_str());
+    log->GetUi()->logContent->appendPlainText(
+        logModel->Append({core::datetime::Now(), "", "-----------------"}).c_str());
+    log->GetUi()->logContent->appendPlainText(
+        logModel->Append({core::datetime::Now(), "Info", "App starting"}).c_str());
     main->videoList->setModel(videoModel);
+
+    if (!settingsPresent())
+      forcePreferences();
 
     connect(main->searchButton, &QPushButton::released, this, &MainWindow::OnSearchTrigger);
     connect(main->actionQuit, &QAction::triggered, this, &MainWindow::CloseWindow);
@@ -176,5 +184,30 @@ namespace ui
     logModel->FlushOnDisk();
     QWidget::closeEvent(event);
     CloseWindow();
+  }
+
+  auto MainWindow::forcePreferences() -> void
+  {
+    preferences = new Preferences();
+    preferences->setAttribute(Qt::WA_DeleteOnClose);
+    preferences->setAttribute(Qt::WA_AlwaysStackOnTop);
+    preferences->setModal(true);
+    preferences->GetUi()->cancelButton->hide();
+    preferences->Show();
+    connect(
+        preferences->GetUi()->saveButton, &QPushButton::released, [this]() { preferences->SaveSettingsAndClose(); });
+    connect(preferences->GetUi()->applyButton, &QPushButton::released, [this]() { preferences->SaveSettings(); });
+  }
+
+  auto MainWindow::settingsPresent() -> bool
+  {
+    auto settingsFile = settings->fileName();
+    auto isExists = std::filesystem::exists(settingsFile.toStdString());
+    if (!isExists)
+      return false;
+
+    auto apiUrlPresent = settings->value("Piped/apiUrl").isValid();
+    auto streamUrlPresent = settings->value("Piped/streamUrl").isValid();
+    return apiUrlPresent && streamUrlPresent;
   }
 } // namespace ui

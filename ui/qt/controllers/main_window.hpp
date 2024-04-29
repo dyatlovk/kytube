@@ -49,6 +49,11 @@ namespace ui
     void closeEvent(QCloseEvent *event) override;
 
   private:
+    auto settingsPresent() -> bool;
+
+    auto forcePreferences() -> void;
+
+  private:
     Ui::MainWindow *main;
     About *about;
     Log *log;
