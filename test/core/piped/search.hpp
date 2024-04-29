@@ -13,7 +13,7 @@ namespace TestPipedSearch
 {
   using json = nlohmann::json;
 
-  TEST_CASE(ParseFromDump, {
+  inline TEST_CASE(ParseFromDump, {
     std::string p(YoutubeQt::ROOT_DIR);
     std::ifstream f(p + "/test/Fixtures/piped/search.json");
     if (!f.is_open())
@@ -54,7 +54,7 @@ namespace TestPipedSearch
     delete ApiService;
   })
 
-  TEST_CASE(ParseRequest, {
+  inline TEST_CASE(ParseRequest, {
     const auto search = new piped::search;
     const auto requestService = new network::request();
     auto result = requestService->Get("https://pipedapi.kavin.rocks/search?q=trending&filter=videos");

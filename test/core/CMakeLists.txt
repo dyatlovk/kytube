@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 file(GLOB SOURCES
     network/request.hpp
     piped/search.hpp
+    piped/stream.hpp
     datetime/datetime.hpp
 )
 add_executable(${EXE_NAME} ${SOURCES} main.cpp)

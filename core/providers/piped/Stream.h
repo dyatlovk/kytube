@@ -24,9 +24,31 @@ namespace piped
 
   public:
     stream() = default;
-    ~stream() { delete response.dash; }
 
-    auto GetParsedData() -> const Response *;
+    ~stream()
+    {
+      delete response.dash;
+      for (const auto item : response.audioStreams)
+      {
+        delete item.audioTrackId;
+        delete item.audioTrackLocale;
+        delete item.audioTrackType;
+        delete item.codec;
+      }
+      for (const auto item : response.videoStreams)
+      {
+        delete item.audioTrackId;
+        delete item.audioTrackLocale;
+        delete item.audioTrackType;
+        delete item.codec;
+      }
+      for (const auto item : response.relatedStreams)
+      {
+        delete item.shortDescription;
+      }
+    }
+
+    auto GetParsedData() -> const Response { return response; }
 
     auto Parse(const std::string &buffer) -> void
     {
@@ -71,6 +93,7 @@ namespace piped
         tags.push_back(tag);
       }
       response.tags = tags;
+      // End Tags
 
       // Metainfo
       std::vector<std::string> meta{};
@@ -80,6 +103,7 @@ namespace piped
         meta.push_back(m);
       }
       response.metaInfo = meta;
+      // end Metainfo
 
       response.uploaderVerified = j["uploaderVerified"].get<bool>();
       response.duration = j["duration"].get<uint>();
@@ -88,6 +112,156 @@ namespace piped
       response.likes = j["likes"].get<uint>();
       response.dislikes = j["dislikes"].get<uint>();
       response.uploaderSubscriberCount = j["uploaderSubscriberCount"].get<uint>();
+
+      // Audiostreams ==========================================================
+      std::vector<AudioStream> audio_streams_{};
+      const auto a_streams_ = j["audioStreams"].get<json::array_t>();
+      for (const auto &item : a_streams_)
+      {
+        AudioStream stream;
+        stream.url = item["url"].get<std::string>();
+        stream.format = item["format"].get<std::string>();
+        stream.quality = item["quality"].get<std::string>();
+        stream.mimeType = item["mimeType"].get<std::string>();
+        if (item["codec"] != nullptr)
+        {
+          stream.codec = new std::string(item["codec"].get<std::string>());
+        }
+        if (item["audioTrackId"] != nullptr)
+        {
+          stream.audioTrackId = new uint(item["audioTrackId"].get<uint>());
+        }
+        if (item["audioTrackType"] != nullptr)
+        {
+          stream.audioTrackType = new std::string(item["audioTrackType"].get<std::string>());
+        }
+        if (item["audioTrackLocale"] != nullptr)
+        {
+          stream.audioTrackLocale = new std::string(item["audioTrackLocale"].get<std::string>());
+        }
+        stream.videoOnly = item["videoOnly"].get<bool>();
+        stream.itag = item["itag"].get<uint>();
+        stream.bitrate = item["bitrate"].get<uint>();
+        stream.initStart = item["initStart"].get<uint>();
+        stream.initEnd = item["initEnd"].get<uint>();
+        stream.indexStart = item["indexStart"].get<uint>();
+        stream.indexEnd = item["indexEnd"].get<uint>();
+        stream.width = item["width"].get<uint>();
+        stream.height = item["height"].get<uint>();
+        stream.fps = item["fps"].get<uint>();
+        stream.contentLength = item["contentLength"].get<int>();
+        audio_streams_.push_back(stream);
+      }
+      response.audioStreams = audio_streams_;
+      // End audiostreams
+
+      // Videostreams ==========================================================
+      std::vector<VideoStream> video_streams_{};
+      const auto v_streams_ = j["videoStreams"].get<json::array_t>();
+      for (const auto &item : v_streams_)
+      {
+        VideoStream stream;
+        stream.url = item["url"].get<std::string>();
+        stream.format = item["format"].get<std::string>();
+        stream.quality = item["quality"].get<std::string>();
+        stream.mimeType = item["mimeType"].get<std::string>();
+        if (item["codec"] != nullptr)
+        {
+          stream.codec = new std::string(item["codec"].get<std::string>());
+        }
+        if (item["audioTrackId"] != nullptr)
+        {
+          stream.audioTrackId = new uint(item["audioTrackId"].get<uint>());
+        }
+        if (item["audioTrackType"] != nullptr)
+        {
+          stream.audioTrackType = new std::string(item["audioTrackType"].get<std::string>());
+        }
+        if (item["audioTrackLocale"] != nullptr)
+        {
+          stream.audioTrackLocale = new std::string(item["audioTrackLocale"].get<std::string>());
+        }
+        stream.videoOnly = item["videoOnly"].get<bool>();
+        stream.itag = item["itag"].get<uint>();
+        stream.bitrate = item["bitrate"].get<uint>();
+        stream.initStart = item["initStart"].get<uint>();
+        stream.initEnd = item["initEnd"].get<uint>();
+        stream.indexStart = item["indexStart"].get<uint>();
+        stream.indexEnd = item["indexEnd"].get<uint>();
+        stream.width = item["width"].get<uint>();
+        stream.height = item["height"].get<uint>();
+        stream.fps = item["fps"].get<uint>();
+        stream.contentLength = item["contentLength"].get<int>();
+        video_streams_.push_back(stream);
+      }
+      response.videoStreams = video_streams_;
+      // End videostreams
+
+      // Related streams =======================================================
+      std::vector<RelatedStream> related_streams_{};
+      const auto r_streams = j["relatedStreams"].get<json::array_t>();
+      for (const auto &item : r_streams)
+      {
+        RelatedStream stream;
+        stream.url = item["url"].get<std::string>();
+        stream.type = item["type"].get<std::string>();
+        stream.title = item["title"].get<std::string>();
+        stream.thumbnail = item["thumbnail"].get<std::string>();
+        stream.uploaderName = item["uploaderName"].get<std::string>();
+        stream.uploaderUrl = item["uploaderUrl"].get<std::string>();
+        stream.uploaderAvatar = item["uploaderAvatar"].get<std::string>();
+        stream.uploadedDate = item["uploadedDate"].get<std::string>();
+        if (item["shortDescription"] != nullptr)
+        {
+          stream.shortDescription = new std::string(item["shortDescription"].get<std::string>());
+        }
+        stream.duration = item["duration"].get<uint>();
+        stream.views = item["views"].get<uint>();
+        stream.uploaded = item["uploaded"].get<uint>();
+        stream.uploaderVerified = item["uploaderVerified"].get<bool>();
+        stream.isShort = item["isShort"].get<bool>();
+        related_streams_.push_back(stream);
+      }
+      response.relatedStreams = related_streams_;
+      // End Related streams
+
+      // Subtitles =============================================================
+      std::vector<Subtitle> subtitles_{};
+      const auto subt_ = j["subtitles"].get<json::array_t>();
+      for (const auto &item : subt_)
+      {
+        Subtitle subtitle;
+        subtitle.url = item["url"].get<std::string>();
+        subtitle.mimeType = item["mimeType"].get<std::string>();
+        subtitle.name = item["name"].get<std::string>();
+        subtitle.code = item["code"].get<std::string>();
+        subtitle.autoGenerated = item["autoGenerated"].get<bool>();
+        subtitles_.push_back(subtitle);
+      }
+      response.subtitles = subtitles_;
+      // End Subtitles
+
+      // Preview frames
+      std::vector<PreviewFrame> previewFrames{};
+      const auto prev_frames_ = j["previewFrames"].get<json::array_t>();
+      for (const auto &item : prev_frames_)
+      {
+        PreviewFrame frame;
+        const auto urls_ = item["urls"].get<json::array_t>();
+        for (const auto &url : urls_)
+        {
+          frame.urls.push_back(url);
+        }
+        frame.frameWidth = item["frameWidth"].get<uint>();
+        frame.frameHeight = item["frameHeight"].get<uint>();
+        frame.totalCount = item["totalCount"].get<uint>();
+        frame.durationPerFrame = item["durationPerFrame"].get<uint>();
+        frame.framesPerPageX = item["framesPerPageX"].get<uint>();
+        frame.framesPerPageY = item["framesPerPageY"].get<uint>();
+        previewFrames.push_back(frame);
+      }
+      response.previewFrames = previewFrames;
+      // End preview frames
     }
 
   public:
@@ -114,6 +288,10 @@ namespace piped
       uint likes;
       uint dislikes;
       uint uploaderSubscriberCount;
+      std::vector<AudioStream> audioStreams;
+      std::vector<VideoStream> videoStreams;
+      std::vector<RelatedStream> relatedStreams;
+      std::vector<Subtitle> subtitles;
       bool livestream;
       std::string proxyUrl;
       std::vector<std::string> chapters;
@@ -126,7 +304,7 @@ namespace piped
       std::string format;
       std::string quality;
       std::string mimeType;
-      std::string codec;
+      std::string *codec = nullptr;
       uint *audioTrackId = nullptr;
       std::string *audioTrackName = nullptr;
       std::string *audioTrackType = nullptr;
@@ -142,6 +320,14 @@ namespace piped
       uint height;
       uint fps;
       int contentLength;
+    };
+
+    struct AudioStream : public Stream
+    {
+    };
+
+    struct VideoStream : public Stream
+    {
     };
 
     struct RelatedStream
@@ -173,7 +359,7 @@ namespace piped
 
     struct PreviewFrame
     {
-      std::vector<std::string> url;
+      std::vector<std::string> urls;
       uint frameWidth;
       uint frameHeight;
       uint totalCount;
