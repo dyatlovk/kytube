@@ -2,6 +2,8 @@
 
 #include <QMainWindow>
 #include <QWidget>
+
+#include "search_model.hpp"
 #include "ui_main.h"
 
 namespace Ui
@@ -21,10 +23,15 @@ namespace TestQt
 
     static auto CloseWindow() -> void;
 
+    auto OnSearchTrigger() -> void;
+
+    auto ShowVideoMenu(const QPoint &pos) -> void;
+
   protected:
     void closeEvent(QCloseEvent *event) override;
 
   private:
     Ui::MainWindow *main;
+    models::search *videoModel;
   };
 } // namespace TestQt

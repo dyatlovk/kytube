@@ -26,6 +26,7 @@ add_compile_definitions(CONFIG_NAME="${CONFIG_NAME}")
 file(GLOB SOURCES
     main.cpp
     main/main_window.cpp
+    main/search_model.cpp
 )
 add_executable(${EXE_NAME} ${SOURCES})
 target_include_directories(${EXE_NAME} PUBLIC ${EXTERNAL_DIR} ${PROJECT_ROOT})

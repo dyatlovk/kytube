@@ -105,11 +105,14 @@ namespace ui
   auto MainWindow::ShowVideoMenu(const QPoint &pos) -> void
   {
     QModelIndex index = main->videoList->indexAt(pos);
+    if (!index.isValid())
+      return;
     const auto data = videoModel->FindDataByIndex(index);
 
     const auto mpv = new players::mpv();
 
     QMenu contextMenu(tr("Context menu"), this);
+    contextMenu.setMinimumWidth(200);
     QAction playAction("Play", this);
     connect(&playAction, &QAction::triggered,
         [&data, &mpv, this]()
@@ -123,8 +126,7 @@ namespace ui
     QAction infoAction("Info", this);
     contextMenu.addSeparator();
     contextMenu.addAction(&infoAction);
-    contextMenu.move(pos.x(), pos.y() + contextMenu.geometry().height());
-    contextMenu.exec(mapToGlobal(pos));
+    contextMenu.exec(main->videoList->viewport()->mapToGlobal(pos));
 
     delete mpv;
   }
