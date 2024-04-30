@@ -45,6 +45,7 @@ namespace piped
       for (const auto item : response.relatedStreams)
       {
         delete item.shortDescription;
+        delete item.uploadedDate;
       }
     }
 
@@ -212,7 +213,10 @@ namespace piped
         stream.uploaderName = item["uploaderName"].get<std::string>();
         stream.uploaderUrl = item["uploaderUrl"].get<std::string>();
         stream.uploaderAvatar = item["uploaderAvatar"].get<std::string>();
-        stream.uploadedDate = item["uploadedDate"].get<std::string>();
+        if (item["uploadedDate"] != nullptr)
+        {
+          stream.uploadedDate = new std::string(item["uploadedDate"].get<std::string>());
+        }
         if (item["shortDescription"] != nullptr)
         {
           stream.shortDescription = new std::string(item["shortDescription"].get<std::string>());
@@ -341,7 +345,7 @@ namespace piped
       std::string uploaderName;
       std::string uploaderUrl;
       std::string uploaderAvatar;
-      std::string uploadedDate;
+      std::string *uploadedDate = nullptr;
       std::string *shortDescription = nullptr;
       uint duration;
       uint views;

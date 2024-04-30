@@ -4,6 +4,7 @@
 
 #include "core/network/request.hpp"
 #include "core/providers/piped/Common.hpp"
+#include "core/providers/piped/PipedException.h"
 #include "core/providers/piped/Search.h"
 
 namespace models
@@ -113,7 +114,15 @@ namespace models
     const auto request = new network::request();
     const auto searchProvider = new piped::search();
     const auto response = request->Get(url);
-    searchProvider->MakeFromString(response);
+    try
+    {
+      searchProvider->MakeFromString(response);
+    }
+    catch (piped::Exception &e)
+    {
+      std::cout << e.what() << std::endl;
+      return;
+    }
     const auto parsed = searchProvider->getParsedData();
     parsedData_ = parsed;
 

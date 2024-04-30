@@ -50,6 +50,14 @@ namespace piped
         return;
       }
 
+      if (j.contains("error"))
+      {
+        error.message = j["error"].get<std::string>();
+        error.reason = "piped response error";
+        error.code = 0;
+        throw piped::Exception(error.message.c_str(), error.reason.c_str(), 0);
+      }
+
       // Items
       std::vector<Item> items{};
       const auto _items = j["items"].get<json::array_t>();
