@@ -32,6 +32,15 @@ inline void ASSERT_EQ_INT(int actual, int expected, const char *message) {
     printf(ANSI_COLOR_WHITE "Assertion passed: %s\n" ANSI_COLOR_RESET, message);
 }
 
+inline void ASSERT_EQ_LONG(long actual, long expected, const char *message) {
+    if (expected != actual) {
+        printf(ANSI_COLOR_RED "Assertion failed: %s\n" ANSI_COLOR_RESET, message);
+        return;
+    }
+
+    printf(ANSI_COLOR_WHITE "Assertion passed: %s\n" ANSI_COLOR_RESET, message);
+}
+
 inline void ASSERT_EQ_FLOAT(float actual, float expected, const char *message) {
     if (expected != actual) {
         printf(ANSI_COLOR_RED "Assertion failed: %s\n" ANSI_COLOR_RESET, message);

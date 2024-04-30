@@ -23,10 +23,10 @@ cmake-debug:
 cmake-release:
 	cmake -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" -S . -B ./cmake-build-release
 compile:
-	cmake --build ./cmake-build-debug --target YouTubeQt -- -j 6
+	cmake --build ./build --target YouTubeQt -- -j 6
 compile-test:
-	cmake --build ./cmake-build-debug --target qtest -- -j 6
+	cmake --build ./build --target qtest -- -j 6
 run-test:
-	./cmake-build-debug/test/qtest
+	./build/test/qtest
 run:
-	./cmake-build-debug/YouTubeQt
+	./build/YouTubeQt
