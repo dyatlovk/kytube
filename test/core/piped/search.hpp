@@ -8,6 +8,7 @@
 
 #include "../Config.hpp"
 #include "../../mtTestSuite.h"
+#include <core/providers/piped/Common.hpp>
 
 namespace TestPipedSearch
 {
@@ -63,5 +64,11 @@ namespace TestPipedSearch
     ASSERT_TRUE(data.items.size() > 0, "Items size");
     delete search;
     delete requestService;
+  })
+
+  inline TEST_CASE(GetVideId, {
+    const std::string url = "/watch?v=123";
+    const auto id = piped::FindVideoId(url);
+    ASSERT_EQ_CHAR(id.c_str(), "123", "Id From url");
   })
 } // namespace TestPipedSearch

@@ -12,6 +12,7 @@ int main()
   TestNetwork::UrlDecodeCyrrylic();
   TestPipedSearch::ParseFromDump();
   TestPipedSearch::ParseRequest();
+  TestPipedSearch::GetVideId();
   TestPipedStream::ParseFromDump();
   TestDateTime::Format();
   return 0;

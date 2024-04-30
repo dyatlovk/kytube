@@ -29,6 +29,7 @@ add_executable(
     controllers/log.cpp
     controllers/history.cpp
     controllers/preferences.cpp
+    controllers/stream.cpp
     models/search.cpp
     models/log.cpp
     models/history.cpp

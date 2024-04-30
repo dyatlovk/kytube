@@ -12,6 +12,7 @@
 #include "history.hpp"
 #include "log.hpp"
 #include "preferences.hpp"
+#include "stream.hpp"
 
 namespace Ui
 {
@@ -63,5 +64,6 @@ namespace ui
     models::search *videoModel;
     models::log *logModel;
     models::history *historyModel;
+    StreamDialog *streamDialog;
   };
 } // namespace ui

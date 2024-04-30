@@ -4,6 +4,7 @@
 #include <QWidget>
 
 #include "search_model.hpp"
+#include "stream.hpp"
 #include "ui_main.h"
 
 namespace Ui
@@ -32,6 +33,7 @@ namespace TestQt
 
   private:
     Ui::MainWindow *main;
+    StreamDialog *streamDialog;
     models::search *videoModel;
   };
 } // namespace TestQt

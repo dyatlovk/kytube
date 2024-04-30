@@ -27,6 +27,7 @@ file(GLOB SOURCES
     main.cpp
     main/main_window.cpp
     main/search_model.cpp
+    main/stream.cpp
 )
 add_executable(${EXE_NAME} ${SOURCES})
 target_include_directories(${EXE_NAME} PUBLIC ${EXTERNAL_DIR} ${PROJECT_ROOT})
@@ -37,4 +38,3 @@ target_link_libraries(${EXE_NAME}
     Qt5::Widgets
     Qt5::UiTools
 )
-add_test(NAME ${EXE_NAME} COMMAND ${CMAKE_BINARY_DIR}/test/qt/${EXE_NAME})

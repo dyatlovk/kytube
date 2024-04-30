@@ -2,12 +2,15 @@
 
 #include <filesystem>
 #include <qnamespace.h>
+#include <qpushbutton.h>
 #include <string>
 
 #include "../Config.hpp"
 #include "core/datetime/datetime.hpp"
 #include "core/network/request.hpp"
 #include "core/players/mpv.hpp"
+#include "core/providers/piped/Stream.h"
+#include "ui/qt/controllers/stream.hpp"
 
 namespace ui
 {
@@ -21,6 +24,7 @@ namespace ui
       , logModel(new models::log)
       , historyModel(new models::history)
       , preferences(nullptr)
+      , streamDialog(nullptr)
       , settings(new QSettings(DOMAIN_NAME, CONFIG_NAME))
   {
     main->setupUi(this);
@@ -109,26 +113,62 @@ namespace ui
       return;
     const auto data = videoModel->FindDataByIndex(index);
 
-    const auto mpv = new players::mpv();
-
     QMenu contextMenu(tr("Context menu"), this);
     contextMenu.setMinimumWidth(200);
     QAction playAction("Play", this);
     connect(&playAction, &QAction::triggered,
-        [&data, &mpv, this]()
+        [&data, this]()
         {
+          const auto mpv = new players::mpv();
           const std::string url = settings->value("Piped/streamUrl").toString().toStdString() + data.url;
           mpv->Handler(url.c_str());
           log->GetUi()->logContent->setPlainText(
               logModel->Append({core::datetime::Now(), "Info", "Running stream" + url}).c_str());
+          delete mpv;
         });
     contextMenu.addAction(&playAction);
-    QAction infoAction("Info", this);
+    QAction infoAction("Stream info", this);
     contextMenu.addSeparator();
     contextMenu.addAction(&infoAction);
-    contextMenu.exec(main->videoList->viewport()->mapToGlobal(pos));
 
-    delete mpv;
+    connect(&infoAction, &QAction::triggered,
+        [this, &data]()
+        {
+          std::string streamUrl = settings->value("Piped/apiUrl").toString().toStdString() + "/streams/" + data.videoId;
+          const auto request = new network::request;
+          auto response = request->Get(streamUrl);
+          delete request;
+          const auto streamProvider = new piped::stream();
+          streamProvider->Parse(response);
+          const auto streamApi = streamProvider->GetParsedData();
+          delete streamProvider;
+          streamDialog = new StreamDialog;
+          streamDialog->Get()->uploader->setText(streamApi.uploader.c_str());
+          streamDialog->Get()->title->setText(streamApi.title.c_str());
+          streamDialog->Get()->title->setStyleSheet("font-weight: bold;");
+          streamDialog->Get()->description->setHtml(streamApi.description.c_str());
+          streamDialog->show();
+
+          connect(streamDialog->Get()->closeButton, &QPushButton::released,
+              [this]
+              {
+                streamDialog->Close();
+                delete streamDialog;
+              });
+
+          connect(streamDialog->Get()->playButton, &QPushButton::released, this,
+              [this, data]()
+              {
+                const auto mpv = new players::mpv();
+                const std::string url = settings->value("Piped/streamUrl").toString().toStdString() + data.url;
+                mpv->Handler(url.c_str());
+                delete mpv;
+                streamDialog->Close();
+                delete streamDialog;
+              });
+        });
+
+    contextMenu.exec(main->videoList->viewport()->mapToGlobal(pos));
   }
 
   auto MainWindow::OnAbout() -> void

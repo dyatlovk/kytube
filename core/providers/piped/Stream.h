@@ -205,6 +205,8 @@ namespace piped
         RelatedStream stream;
         stream.url = item["url"].get<std::string>();
         stream.type = item["type"].get<std::string>();
+        if (stream.type == "playlist")
+          continue;
         stream.title = item["title"].get<std::string>();
         stream.thumbnail = item["thumbnail"].get<std::string>();
         stream.uploaderName = item["uploaderName"].get<std::string>();

@@ -1,4 +1,5 @@
 #include "main_window.hpp"
+
 #include <qpoint.h>
 
 namespace TestQt
@@ -6,6 +7,7 @@ namespace TestQt
   MainWindow::MainWindow(QWidget *parent)
       : QMainWindow(parent)
       , main(new Ui::MainWindow)
+      , streamDialog(nullptr)
       , videoModel(new models::search())
   {
     main->setupUi(this);
@@ -20,6 +22,7 @@ namespace TestQt
 
   MainWindow::~MainWindow()
   {
+    delete streamDialog;
     delete videoModel;
     delete main;
   }
@@ -45,6 +48,24 @@ namespace TestQt
     QAction infoAction("Info", this);
     contextMenu.addSeparator();
     contextMenu.addAction(&infoAction);
+
+    connect(&infoAction, &QAction::triggered,
+        [this]
+        {
+          streamDialog = new StreamDialog;
+          streamDialog->Get()->uploader->setText("Uploader name");
+          streamDialog->Get()->title->setText("Stream title");
+          streamDialog->Get()->title->setStyleSheet("font-weight: bold;");
+          streamDialog->Get()->description->setHtml("description");
+          streamDialog->show();
+          connect(streamDialog->Get()->closeButton, &QPushButton::released,
+              [this]
+              {
+                streamDialog->Close();
+                delete streamDialog;
+              });
+        });
+
     contextMenu.exec(main->videoList->viewport()->mapToGlobal(pos));
   }
 

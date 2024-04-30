@@ -1,6 +1,9 @@
 #include "search.hpp"
 
+#include <string>
+
 #include "core/network/request.hpp"
+#include "core/providers/piped/Common.hpp"
 #include "core/providers/piped/Search.h"
 
 namespace models
@@ -116,16 +119,12 @@ namespace models
 
     for (const auto &item : parsedData_.items)
     {
-      std::string id;
-      id.append(item.url);
-      id.append(item.title);
+      const std::string id = piped::FindVideoId(item.url);
       std::string uploadedDate = "";
-      if (item.uploadedDate)
+      if (item.uploadedDate != nullptr)
+      {
         uploadedDate = *item.uploadedDate;
-      id.append(uploadedDate);
-      id.append(item.uploaderName);
-      id.append(item.url);
-      id.append(item.type);
+      }
       AppendData({item.url, item.title, uploadedDate, item.uploaderName, id, item.type});
     }
 
