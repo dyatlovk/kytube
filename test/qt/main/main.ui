@@ -207,13 +207,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="prevPageButton">
-         <property name="text">
-          <string>Prev</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QPushButton" name="nextPageButton">
          <property name="enabled">
           <bool>true</bool>

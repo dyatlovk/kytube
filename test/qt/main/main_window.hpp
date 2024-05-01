@@ -5,6 +5,7 @@
 
 #include "search_model.hpp"
 #include "stream.hpp"
+#include "Worker.hpp"
 #include "ui_main.h"
 
 namespace Ui
@@ -28,6 +29,9 @@ namespace TestQt
 
     auto ShowVideoMenu(const QPoint &pos) -> void;
 
+  public slots:
+    auto updateTextField(const QString &text) -> void;
+
   protected:
     void closeEvent(QCloseEvent *event) override;
 
@@ -35,5 +39,6 @@ namespace TestQt
     Ui::MainWindow *main;
     StreamDialog *streamDialog;
     models::search *videoModel;
+    Worker *worker;
   };
 } // namespace TestQt

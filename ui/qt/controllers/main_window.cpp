@@ -9,8 +9,6 @@
 #include "core/datetime/datetime.hpp"
 #include "core/network/request.hpp"
 #include "core/players/mpv.hpp"
-#include "core/providers/piped/Stream.h"
-#include "ui/qt/controllers/stream.hpp"
 
 namespace ui
 {
@@ -26,6 +24,7 @@ namespace ui
       , preferences(nullptr)
       , streamDialog(nullptr)
       , settings(new QSettings(DOMAIN_NAME, CONFIG_NAME))
+      , streamModel(new models::stream)
   {
     main->setupUi(this);
     main->videoList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -50,6 +49,7 @@ namespace ui
 
   MainWindow::~MainWindow()
   {
+    delete streamModel;
     delete settings;
     delete historyModel;
     delete logModel;
@@ -72,11 +72,16 @@ namespace ui
     videoModel->ResetModel();
     log->GetUi()->logContent->setPlainText(
         logModel->Append({core::datetime::Now(), "Info", "Searching " + q.toStdString()}).c_str());
-    videoModel->Search(url, q.toStdString());
-    const auto foundSize = std::to_string(videoModel->GetParsedData().items.size());
-    log->GetUi()->logContent->setPlainText(
-        logModel->Append({core::datetime::Now(), "Info", "Found " + foundSize + " items"}).c_str());
-    main->videoList->resizeColumnsToContents();
+
+    connect(videoModel, &models::search::searchComplete, this,
+        [this]()
+        {
+          const auto foundSize = std::to_string(videoModel->GetParsedData().items.size());
+          log->GetUi()->logContent->setPlainText(
+              logModel->Append({core::datetime::Now(), "Info", "Found " + foundSize + " items"}).c_str());
+          main->videoList->resizeColumnsToContents();
+        });
+    videoModel->SearchAsync(url, q.toStdString());
   }
 
   auto MainWindow::OnPageNext() -> void
@@ -94,11 +99,16 @@ namespace ui
     videoModel->ResetModel();
     log->GetUi()->logContent->setPlainText(
         logModel->Append({core::datetime::Now(), "Info", "Searching " + query}).c_str());
-    videoModel->Search(url, videoModel->GetQuery());
-    const auto foundSize = std::to_string(videoModel->GetParsedData().items.size());
-    log->GetUi()->logContent->setPlainText(
-        logModel->Append({core::datetime::Now(), "Info", "Found " + foundSize + " items"}).c_str());
-    main->videoList->resizeColumnsToContents();
+    connect(videoModel, &models::search::searchComplete, this,
+        [this]()
+        {
+          const auto foundSize = std::to_string(videoModel->GetParsedData().items.size());
+          log->GetUi()->logContent->setPlainText(
+              logModel->Append({core::datetime::Now(), "Info", "Found " + foundSize + " items"}).c_str());
+          main->videoList->resizeColumnsToContents();
+        });
+
+    videoModel->SearchAsync(url, videoModel->GetQuery());
   }
 
   auto MainWindow::CloseWindow() -> void
@@ -135,19 +145,22 @@ namespace ui
         [this, &data]()
         {
           std::string streamUrl = settings->value("Piped/apiUrl").toString().toStdString() + "/streams/" + data.videoId;
-          const auto request = new network::request;
-          auto response = request->Get(streamUrl);
-          delete request;
-          const auto streamProvider = new piped::stream();
-          streamProvider->Parse(response);
-          const auto streamApi = streamProvider->GetParsedData();
-          delete streamProvider;
           streamDialog = new StreamDialog;
-          streamDialog->Get()->uploader->setText(streamApi.uploader.c_str());
-          streamDialog->Get()->title->setText(streamApi.title.c_str());
-          streamDialog->Get()->title->setStyleSheet("font-weight: bold;");
-          streamDialog->Get()->description->setHtml(streamApi.description.c_str());
           streamDialog->show();
+
+          streamModel->SearchAsync(streamUrl);
+          streamDialog->Get()->description->setPlaceholderText("Loading...");
+          streamDialog->Get()->description->setAlignment(Qt::AlignCenter);
+
+          connect(streamModel, &models::stream::searchComplete, this,
+              [this]()
+              {
+                const auto apiResponse = streamModel->GetParsed();
+                streamDialog->Get()->uploader->setText(apiResponse.uploader.c_str());
+                streamDialog->Get()->title->setText(apiResponse.title.c_str());
+                streamDialog->Get()->title->setStyleSheet("font-weight: bold;");
+                streamDialog->Get()->description->setHtml(apiResponse.description.c_str());
+              });
 
           connect(streamDialog->Get()->closeButton, &QPushButton::released,
               [this]
