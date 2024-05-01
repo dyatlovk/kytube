@@ -38,6 +38,7 @@ namespace ui
       forcePreferences();
 
     connect(main->searchButton, &QPushButton::released, this, &MainWindow::OnSearchTrigger);
+    connect(main->searchField, &SearchInput::queryEnter, this, &MainWindow::OnSearchTrigger);
     connect(main->actionQuit, &QAction::triggered, this, &MainWindow::CloseWindow);
     connect(main->videoList, &QTableView::customContextMenuRequested, this, &MainWindow::ShowVideoMenu);
     connect(main->nextPageButton, &QPushButton::released, this, &MainWindow::OnPageNext);
@@ -61,6 +62,7 @@ namespace ui
 
   auto MainWindow::OnSearchTrigger() -> void
   {
+    lockSearchUi();
     const auto q = main->searchField->text();
     if (q.isEmpty())
       return;
@@ -80,12 +82,14 @@ namespace ui
           log->GetUi()->logContent->setPlainText(
               logModel->Append({core::datetime::Now(), "Info", "Found " + foundSize + " items"}).c_str());
           main->videoList->resizeColumnsToContents();
+          unlockSearchUi();
         });
     videoModel->SearchAsync(url, q.toStdString());
   }
 
   auto MainWindow::OnPageNext() -> void
   {
+    lockSearchUi();
     const auto pageToken = videoModel->GetParsedData().nextpage;
     if (pageToken.empty())
       return;
@@ -99,6 +103,7 @@ namespace ui
     videoModel->ResetModel();
     log->GetUi()->logContent->setPlainText(
         logModel->Append({core::datetime::Now(), "Info", "Searching " + query}).c_str());
+
     connect(videoModel, &models::search::searchComplete, this,
         [this]()
         {
@@ -106,6 +111,7 @@ namespace ui
           log->GetUi()->logContent->setPlainText(
               logModel->Append({core::datetime::Now(), "Info", "Found " + foundSize + " items"}).c_str());
           main->videoList->resizeColumnsToContents();
+          unlockSearchUi();
         });
 
     videoModel->SearchAsync(url, videoModel->GetQuery());
@@ -264,5 +270,17 @@ namespace ui
     auto apiUrlPresent = settings->value("Piped/apiUrl").isValid();
     auto streamUrlPresent = settings->value("Piped/streamUrl").isValid();
     return apiUrlPresent && streamUrlPresent;
+  }
+
+  auto MainWindow::lockSearchUi() -> void
+  {
+    main->searchFrame->setEnabled(false);
+    main->pageNavigator->setEnabled(false);
+  }
+
+  auto MainWindow::unlockSearchUi() -> void
+  {
+    main->searchFrame->setEnabled(true);
+    main->pageNavigator->setEnabled(true);
   }
 } // namespace ui

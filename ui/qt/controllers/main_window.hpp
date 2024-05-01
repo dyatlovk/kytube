@@ -55,6 +55,10 @@ namespace ui
 
     auto forcePreferences() -> void;
 
+    auto lockSearchUi() -> void;
+
+    auto unlockSearchUi() -> void;
+
   private:
     Ui::MainWindow *main;
     About *about;

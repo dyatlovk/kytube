@@ -3,7 +3,8 @@
 #include <qpoint.h>
 #include <unistd.h>
 
-#include "test/qt/main/Worker.hpp"
+#include "Worker.hpp"
+#include "search_input.hpp"
 
 namespace TestQt
 {
@@ -20,6 +21,7 @@ namespace TestQt
     main->videoList->setModel(videoModel);
 
     connect(main->videoList, &QTableView::customContextMenuRequested, this, &MainWindow::ShowVideoMenu);
+    connect(main->searchField, &SearchInputTest::queryEnter, this, &MainWindow::OnSearchTrigger);
     connect(main->searchButton, &QPushButton::released, this, &MainWindow::OnSearchTrigger);
     connect(main->actionQuit, &QAction::triggered, this, &MainWindow::CloseWindow);
   }

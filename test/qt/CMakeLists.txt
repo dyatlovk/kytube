@@ -29,6 +29,7 @@ file(GLOB SOURCES
     main/search_model.cpp
     main/stream.cpp
     main/Worker.cpp
+    main/search_input.hpp
 )
 add_executable(${EXE_NAME} ${SOURCES})
 target_include_directories(${EXE_NAME} PUBLIC ${EXTERNAL_DIR} ${PROJECT_ROOT})

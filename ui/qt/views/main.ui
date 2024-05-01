@@ -125,7 +125,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QLineEdit" name="searchField">
+        <widget class="SearchInput" name="searchField">
          <property name="focusPolicy">
           <enum>Qt::ClickFocus</enum>
          </property>
@@ -321,6 +321,13 @@
   </action>
  </widget>
  <layoutdefault spacing="5" margin="10"/>
+ <customwidgets>
+  <customwidget>
+   <class>SearchInput</class>
+   <extends>QLineEdit</extends>
+   <header>ui/qt/views/searchinput.hpp</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

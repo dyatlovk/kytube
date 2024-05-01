@@ -34,6 +34,7 @@ add_executable(
     models/stream.cpp
     models/log.cpp
     models/history.cpp
+    views/searchinput.hpp
 )
 target_include_directories(${PROJECT_NAME} PUBLIC ${EXTERNAL_DIR} ${PROJECT_ROOT})
 target_link_libraries(${PROJECT_NAME}
