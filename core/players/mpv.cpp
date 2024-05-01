@@ -1,5 +1,7 @@
 #include "mpv.hpp"
 
+#include "../sys/shell.hpp"
+
 namespace players
 {
   mpv::mpv()
@@ -41,7 +43,10 @@ namespace players
       _cmd.append(" --no-terminal");
 
     _cmd.append(" --volume=" + std::to_string(vol));
-    _cmd.append(" &!");
+    const auto shellCmd = core::sys::getShellCmd();
+    const auto shell = core::sys::getShell(shellCmd);
+    const auto detachSymb = core::sys::getShellDetachSymb(shell);
+    _cmd.append(" " + detachSymb);
   }
 
   auto mpv::Run() -> bool

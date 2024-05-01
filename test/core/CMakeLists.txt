@@ -11,6 +11,7 @@ file(GLOB SOURCES
     piped/search.hpp
     piped/stream.hpp
     datetime/datetime.hpp
+    sys/shell.hpp
 )
 add_executable(${EXE_NAME} ${SOURCES} main.cpp)
 target_include_directories(${EXE_NAME} PUBLIC ${EXTERNAL_DIR} ${PROJECT_ROOT})
