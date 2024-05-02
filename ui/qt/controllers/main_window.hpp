@@ -7,6 +7,7 @@
 #include "../models/history.hpp"
 #include "../models/log.hpp"
 #include "../models/search.hpp"
+#include "../models/stream.hpp"
 #include "../views/ui_main.h"
 #include "about.hpp"
 #include "history.hpp"
@@ -54,6 +55,10 @@ namespace ui
 
     auto forcePreferences() -> void;
 
+    auto lockSearchUi() -> void;
+
+    auto unlockSearchUi() -> void;
+
   private:
     Ui::MainWindow *main;
     About *about;
@@ -65,5 +70,6 @@ namespace ui
     models::log *logModel;
     models::history *historyModel;
     StreamDialog *streamDialog;
+    models::stream *streamModel;
   };
 } // namespace ui

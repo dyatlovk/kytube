@@ -1,5 +1,7 @@
 #include "mpv.hpp"
 
+#include "../sys/shell.hpp"
+
 namespace players
 {
   mpv::mpv()
@@ -41,7 +43,8 @@ namespace players
       _cmd.append(" --no-terminal");
 
     _cmd.append(" --volume=" + std::to_string(vol));
-    _cmd.append(" &!");
+    _cmd.append(" --geometry=50%:50%");
+    _cmd.append(" &");
   }
 
   auto mpv::Run() -> bool

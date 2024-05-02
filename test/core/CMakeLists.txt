@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.25)
 set(EXE_NAME qtube_test_core)
 project(${EXE_NAME})
 
@@ -11,6 +11,7 @@ file(GLOB SOURCES
     piped/search.hpp
     piped/stream.hpp
     datetime/datetime.hpp
+    sys/shell.hpp
 )
 add_executable(${EXE_NAME} ${SOURCES} main.cpp)
 target_include_directories(${EXE_NAME} PUBLIC ${EXTERNAL_DIR} ${PROJECT_ROOT})

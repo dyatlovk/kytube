@@ -9,8 +9,6 @@
 #include "core/datetime/datetime.hpp"
 #include "core/network/request.hpp"
 #include "core/players/mpv.hpp"
-#include "core/providers/piped/Stream.h"
-#include "ui/qt/controllers/stream.hpp"
 
 namespace ui
 {
@@ -26,6 +24,7 @@ namespace ui
       , preferences(nullptr)
       , streamDialog(nullptr)
       , settings(new QSettings(DOMAIN_NAME, CONFIG_NAME))
+      , streamModel(new models::stream)
   {
     main->setupUi(this);
     main->videoList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -39,6 +38,7 @@ namespace ui
       forcePreferences();
 
     connect(main->searchButton, &QPushButton::released, this, &MainWindow::OnSearchTrigger);
+    connect(main->searchField, &SearchInput::queryEnter, this, &MainWindow::OnSearchTrigger);
     connect(main->actionQuit, &QAction::triggered, this, &MainWindow::CloseWindow);
     connect(main->videoList, &QTableView::customContextMenuRequested, this, &MainWindow::ShowVideoMenu);
     connect(main->nextPageButton, &QPushButton::released, this, &MainWindow::OnPageNext);
@@ -50,6 +50,7 @@ namespace ui
 
   MainWindow::~MainWindow()
   {
+    delete streamModel;
     delete settings;
     delete historyModel;
     delete logModel;
@@ -61,6 +62,7 @@ namespace ui
 
   auto MainWindow::OnSearchTrigger() -> void
   {
+    lockSearchUi();
     const auto q = main->searchField->text();
     if (q.isEmpty())
       return;
@@ -72,15 +74,22 @@ namespace ui
     videoModel->ResetModel();
     log->GetUi()->logContent->setPlainText(
         logModel->Append({core::datetime::Now(), "Info", "Searching " + q.toStdString()}).c_str());
-    videoModel->Search(url, q.toStdString());
-    const auto foundSize = std::to_string(videoModel->GetParsedData().items.size());
-    log->GetUi()->logContent->setPlainText(
-        logModel->Append({core::datetime::Now(), "Info", "Found " + foundSize + " items"}).c_str());
-    main->videoList->resizeColumnsToContents();
+
+    connect(videoModel, &models::search::searchComplete, this,
+        [this]()
+        {
+          const auto foundSize = std::to_string(videoModel->GetParsedData().items.size());
+          log->GetUi()->logContent->setPlainText(
+              logModel->Append({core::datetime::Now(), "Info", "Found " + foundSize + " items"}).c_str());
+          main->videoList->resizeColumnsToContents();
+          unlockSearchUi();
+        });
+    videoModel->SearchAsync(url, q.toStdString());
   }
 
   auto MainWindow::OnPageNext() -> void
   {
+    lockSearchUi();
     const auto pageToken = videoModel->GetParsedData().nextpage;
     if (pageToken.empty())
       return;
@@ -94,11 +103,18 @@ namespace ui
     videoModel->ResetModel();
     log->GetUi()->logContent->setPlainText(
         logModel->Append({core::datetime::Now(), "Info", "Searching " + query}).c_str());
-    videoModel->Search(url, videoModel->GetQuery());
-    const auto foundSize = std::to_string(videoModel->GetParsedData().items.size());
-    log->GetUi()->logContent->setPlainText(
-        logModel->Append({core::datetime::Now(), "Info", "Found " + foundSize + " items"}).c_str());
-    main->videoList->resizeColumnsToContents();
+
+    connect(videoModel, &models::search::searchComplete, this,
+        [this]()
+        {
+          const auto foundSize = std::to_string(videoModel->GetParsedData().items.size());
+          log->GetUi()->logContent->setPlainText(
+              logModel->Append({core::datetime::Now(), "Info", "Found " + foundSize + " items"}).c_str());
+          main->videoList->resizeColumnsToContents();
+          unlockSearchUi();
+        });
+
+    videoModel->SearchAsync(url, videoModel->GetQuery());
   }
 
   auto MainWindow::CloseWindow() -> void
@@ -135,19 +151,22 @@ namespace ui
         [this, &data]()
         {
           std::string streamUrl = settings->value("Piped/apiUrl").toString().toStdString() + "/streams/" + data.videoId;
-          const auto request = new network::request;
-          auto response = request->Get(streamUrl);
-          delete request;
-          const auto streamProvider = new piped::stream();
-          streamProvider->Parse(response);
-          const auto streamApi = streamProvider->GetParsedData();
-          delete streamProvider;
           streamDialog = new StreamDialog;
-          streamDialog->Get()->uploader->setText(streamApi.uploader.c_str());
-          streamDialog->Get()->title->setText(streamApi.title.c_str());
-          streamDialog->Get()->title->setStyleSheet("font-weight: bold;");
-          streamDialog->Get()->description->setHtml(streamApi.description.c_str());
           streamDialog->show();
+
+          streamModel->SearchAsync(streamUrl);
+          streamDialog->Get()->description->setPlaceholderText("Loading...");
+          streamDialog->Get()->description->setAlignment(Qt::AlignCenter);
+
+          connect(streamModel, &models::stream::searchComplete, this,
+              [this]()
+              {
+                const auto apiResponse = streamModel->GetParsed();
+                streamDialog->Get()->uploader->setText(apiResponse.uploader.c_str());
+                streamDialog->Get()->title->setText(apiResponse.title.c_str());
+                streamDialog->Get()->title->setStyleSheet("font-weight: bold;");
+                streamDialog->Get()->description->setHtml(apiResponse.description.c_str());
+              });
 
           connect(streamDialog->Get()->closeButton, &QPushButton::released,
               [this]
@@ -173,14 +192,9 @@ namespace ui
 
   auto MainWindow::OnAbout() -> void
   {
-    const std::string version(YoutubeQt::VERSION);
-    const std::string app(CONFIG_NAME);
-    const std::string aboutText = app + " v." + version;
     about = new About;
-    about->GetUi()->aboutText->setText(QString(aboutText.c_str()));
+    about->SetContent();
     about->Show();
-    about->setAttribute(Qt::WA_DeleteOnClose);
-    about->setWindowTitle(tr("QTube - About"));
     connect(about->GetUi()->closeButton, &QPushButton::released,
         [this]()
         {
@@ -251,5 +265,17 @@ namespace ui
     auto apiUrlPresent = settings->value("Piped/apiUrl").isValid();
     auto streamUrlPresent = settings->value("Piped/streamUrl").isValid();
     return apiUrlPresent && streamUrlPresent;
+  }
+
+  auto MainWindow::lockSearchUi() -> void
+  {
+    main->searchFrame->setEnabled(false);
+    main->pageNavigator->setEnabled(false);
+  }
+
+  auto MainWindow::unlockSearchUi() -> void
+  {
+    main->searchFrame->setEnabled(true);
+    main->pageNavigator->setEnabled(true);
   }
 } // namespace ui

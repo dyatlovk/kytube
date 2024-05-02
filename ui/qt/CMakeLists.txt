@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.25)
 project(qt)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -31,8 +31,10 @@ add_executable(
     controllers/preferences.cpp
     controllers/stream.cpp
     models/search.cpp
+    models/stream.cpp
     models/log.cpp
     models/history.cpp
+    views/searchinput.hpp
 )
 target_include_directories(${PROJECT_NAME} PUBLIC ${EXTERNAL_DIR} ${PROJECT_ROOT})
 target_link_libraries(${PROJECT_NAME}

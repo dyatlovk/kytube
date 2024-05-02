@@ -1,14 +1,18 @@
 #include "main_window.hpp"
 
 #include <qpoint.h>
+#include <unistd.h>
+
+#include "Worker.hpp"
 
 namespace TestQt
 {
   MainWindow::MainWindow(QWidget *parent)
       : QMainWindow(parent)
       , main(new Ui::MainWindow)
-      , streamDialog(nullptr)
+      , streamDialog(new StreamDialog)
       , videoModel(new models::search())
+      , worker(new Worker)
   {
     main->setupUi(this);
     main->videoList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -16,12 +20,14 @@ namespace TestQt
     main->videoList->setModel(videoModel);
 
     connect(main->videoList, &QTableView::customContextMenuRequested, this, &MainWindow::ShowVideoMenu);
+    connect(main->searchField, &SearchInputTest::queryEnter, this, &MainWindow::OnSearchTrigger);
     connect(main->searchButton, &QPushButton::released, this, &MainWindow::OnSearchTrigger);
     connect(main->actionQuit, &QAction::triggered, this, &MainWindow::CloseWindow);
   }
 
   MainWindow::~MainWindow()
   {
+    delete worker;
     delete streamDialog;
     delete videoModel;
     delete main;
@@ -49,21 +55,17 @@ namespace TestQt
     contextMenu.addSeparator();
     contextMenu.addAction(&infoAction);
 
+    connect(worker, &Worker::textReady, this, &MainWindow::updateTextField);
+
     connect(&infoAction, &QAction::triggered,
         [this]
         {
-          streamDialog = new StreamDialog;
-          streamDialog->Get()->uploader->setText("Uploader name");
-          streamDialog->Get()->title->setText("Stream title");
-          streamDialog->Get()->title->setStyleSheet("font-weight: bold;");
-          streamDialog->Get()->description->setHtml("description");
+          worker->startAsyncTask();
+          streamDialog->Get()->description->setPlaceholderText("Loading");
+          streamDialog->Get()->description->setAlignment(Qt::AlignCenter);
           streamDialog->show();
-          connect(streamDialog->Get()->closeButton, &QPushButton::released,
-              [this]
-              {
-                streamDialog->Close();
-                delete streamDialog;
-              });
+          connect(streamDialog->Get()->closeButton, &QPushButton::released, [this] { streamDialog->Close(); });
+          connect(streamDialog->Get()->playButton, &QPushButton::released, [this]() { streamDialog->Close(); });
         });
 
     contextMenu.exec(main->videoList->viewport()->mapToGlobal(pos));
@@ -73,5 +75,13 @@ namespace TestQt
   {
     QWidget::closeEvent(event);
     CloseWindow();
+  }
+
+  auto MainWindow::updateTextField(const QString &text) -> void
+  {
+    streamDialog->Get()->uploader->setText("Uploader name");
+    streamDialog->Get()->title->setText("Stream title");
+    streamDialog->Get()->title->setStyleSheet("font-weight: bold;");
+    streamDialog->Get()->description->setHtml(text);
   }
 } // namespace TestQt

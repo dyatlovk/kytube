@@ -1,7 +1,8 @@
+#include "datetime/datetime.hpp"
 #include "network/request.hpp"
 #include "piped/search.hpp"
 #include "piped/stream.hpp"
-#include "datetime/datetime.hpp"
+#include "test/core/sys/shell.hpp"
 
 int main()
 {
@@ -15,5 +16,6 @@ int main()
   TestPipedSearch::GetVideId();
   TestPipedStream::ParseFromDump();
   TestDateTime::Format();
+  TestCore::Run();
   return 0;
 }

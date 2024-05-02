@@ -1,5 +1,6 @@
 #include "search.hpp"
 
+#include <future>
 #include <string>
 
 #include "core/network/request.hpp"
@@ -139,5 +140,13 @@ namespace models
 
     delete searchProvider;
     delete request;
+
+    emit searchComplete();
+  }
+
+  auto search::SearchAsync(const std::string &url, const std::string &query) -> void
+  {
+    auto futureResult = std::async(std::launch::async, &search::Search, this, url, query);
+    asyncResult = std::move(futureResult);
   }
 } // namespace models

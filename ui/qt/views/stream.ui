@@ -26,7 +26,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Title</string>
+      <string/>
      </property>
     </widget>
    </item>
@@ -90,7 +90,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="uploader">
      <property name="text">
-      <string>Uploader</string>
+      <string/>
      </property>
     </widget>
    </item>

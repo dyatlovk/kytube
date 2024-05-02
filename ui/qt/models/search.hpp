@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QAbstractTableModel>
+#include <future>
 
 #include "core/providers/piped/Search.h"
 
@@ -34,12 +35,17 @@ namespace models
     auto ResetModel() -> void;
     [[nodiscard]] auto FindDataByIndex(const QModelIndex &index) const -> RowData;
     auto Search(const std::string &url, const std::string &query) -> void;
+    auto SearchAsync(const std::string &url, const std::string &query) -> void;
     auto GetQuery() -> std::string & { return currentQuery; };
     auto GetParsedData() -> piped::search::Response { return parsedData_; };
+
+  signals:
+    void searchComplete();
 
   private:
     QVector<RowData> m_data;
     std::string currentQuery;
     piped::search::Response parsedData_;
+    std::future<void> asyncResult;
   };
 } // namespace models

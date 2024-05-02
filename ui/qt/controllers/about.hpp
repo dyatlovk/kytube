@@ -23,6 +23,8 @@ namespace ui
 
     auto Show() -> void;
 
+    auto SetContent() -> void;
+
     auto GetUi() -> Ui::About * { return this->ui; };
 
   private:

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.25)
 set(EXE_NAME qtube_test_qt)
 project(${EXE_NAME})
 
@@ -28,6 +28,8 @@ file(GLOB SOURCES
     main/main_window.cpp
     main/search_model.cpp
     main/stream.cpp
+    main/Worker.cpp
+    main/search_input.hpp
 )
 add_executable(${EXE_NAME} ${SOURCES})
 target_include_directories(${EXE_NAME} PUBLIC ${EXTERNAL_DIR} ${PROJECT_ROOT})

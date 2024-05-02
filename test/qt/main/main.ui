@@ -125,7 +125,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QLineEdit" name="searchField">
+        <widget class="SearchInputTest" name="searchField">
          <property name="focusPolicy">
           <enum>Qt::ClickFocus</enum>
          </property>
@@ -203,13 +203,6 @@
         <widget class="QLabel" name="pageNavLabel">
          <property name="text">
           <string>Page</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="prevPageButton">
-         <property name="text">
-          <string>Prev</string>
          </property>
         </widget>
        </item>
@@ -328,6 +321,13 @@
   </action>
  </widget>
  <layoutdefault spacing="5" margin="10"/>
+ <customwidgets>
+  <customwidget>
+   <class>SearchInputTest</class>
+   <extends>QLineEdit</extends>
+   <header>test/qt/main/search_input.hpp</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
