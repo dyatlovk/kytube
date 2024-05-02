@@ -192,14 +192,9 @@ namespace ui
 
   auto MainWindow::OnAbout() -> void
   {
-    const std::string version(YoutubeQt::VERSION);
-    const std::string app(CONFIG_NAME);
-    const std::string aboutText = app + " v." + version;
     about = new About;
-    about->GetUi()->aboutText->setText(QString(aboutText.c_str()));
+    about->SetContent();
     about->Show();
-    about->setAttribute(Qt::WA_DeleteOnClose);
-    about->setWindowTitle(tr("QTube - About"));
     connect(about->GetUi()->closeButton, &QPushButton::released,
         [this]()
         {
