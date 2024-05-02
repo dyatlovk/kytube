@@ -43,10 +43,8 @@ namespace players
       _cmd.append(" --no-terminal");
 
     _cmd.append(" --volume=" + std::to_string(vol));
-    const auto shellCmd = core::sys::getShellCmd();
-    const auto shell = core::sys::getShell(shellCmd);
-    const auto detachSymb = core::sys::getShellDetachSymb(shell);
-    _cmd.append(" " + detachSymb);
+    _cmd.append(" --geometry=50%:50%");
+    _cmd.append(" &");
   }
 
   auto mpv::Run() -> bool
