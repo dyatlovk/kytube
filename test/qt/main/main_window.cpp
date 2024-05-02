@@ -4,7 +4,6 @@
 #include <unistd.h>
 
 #include "Worker.hpp"
-#include "search_input.hpp"
 
 namespace TestQt
 {

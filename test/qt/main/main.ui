@@ -125,7 +125,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="SearchInput" name="searchField">
+        <widget class="SearchInputTest" name="searchField">
          <property name="focusPolicy">
           <enum>Qt::ClickFocus</enum>
          </property>
