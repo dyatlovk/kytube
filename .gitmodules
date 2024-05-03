@@ -4,4 +4,3 @@
 [submodule "external/curl"]
 	path = external/curl
 	url = https://github.com/curl/curl.git
-	branch = curl-8_7_1
