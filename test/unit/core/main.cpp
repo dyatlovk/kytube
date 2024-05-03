@@ -2,7 +2,7 @@
 #include "network/request.hpp"
 #include "piped/search.hpp"
 #include "piped/stream.hpp"
-#include "test/core/sys/shell.hpp"
+#include "sys/shell.hpp"
 
 int main()
 {
