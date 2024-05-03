@@ -5,7 +5,6 @@
 #include <qpushbutton.h>
 #include <string>
 
-#include "../Config.hpp"
 #include "core/datetime/datetime.hpp"
 #include "core/network/request.hpp"
 #include "core/players/mpv.hpp"
@@ -62,8 +61,13 @@ namespace ui
 
   auto MainWindow::OnSearchTrigger() -> void
   {
-    lockSearchUi();
     const auto q = main->searchField->text();
+    if (q.size() == 0)
+    {
+      unlockSearchUi();
+      return;
+    }
+    lockSearchUi();
     if (q.isEmpty())
       return;
     const auto query = network::request::UrlEncode(q.toStdString());
@@ -89,10 +93,14 @@ namespace ui
 
   auto MainWindow::OnPageNext() -> void
   {
-    lockSearchUi();
     const auto pageToken = videoModel->GetParsedData().nextpage;
     if (pageToken.empty())
+    {
+      unlockSearchUi();
       return;
+    }
+
+    lockSearchUi();
     std::string url = settings->value("Piped/apiUrl").toString().toStdString() + "/nextpage/search?nextpage=";
     const auto query = network::request::UrlEncode(videoModel->GetQuery());
     if (query.empty())
