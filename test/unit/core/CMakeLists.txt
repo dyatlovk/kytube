@@ -10,6 +10,7 @@ file(GLOB SOURCES
     network/request.hpp
     piped/search.hpp
     piped/stream.hpp
+    piped/suggestions.hpp
     datetime/datetime.hpp
     sys/shell.hpp
 )
