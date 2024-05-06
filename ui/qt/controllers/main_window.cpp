@@ -1,6 +1,7 @@
 #include "main_window.hpp"
 
 #include <filesystem>
+#include <qabstractitemmodel.h>
 #include <qnamespace.h>
 #include <qpushbutton.h>
 #include <string>
@@ -8,6 +9,7 @@
 #include "core/datetime/datetime.hpp"
 #include "core/network/request.hpp"
 #include "core/players/mpv.hpp"
+#include "ui/qt/models/search.hpp"
 
 namespace ui
 {
@@ -97,6 +99,9 @@ namespace ui
               logModel->Append({core::datetime::Now(), "Info", "Found " + foundSize + " items"}).c_str());
           unlockSearchUi();
         });
+
+    connect(videoModel, &models::search::imageLoadingComplete, this,
+        [this](const QModelIndex index) { main->videoList->update(index); });
     videoModel->SearchAsync(url, q.toStdString());
   }
 
@@ -129,6 +134,9 @@ namespace ui
               logModel->Append({core::datetime::Now(), "Info", "Found " + foundSize + " items"}).c_str());
           unlockSearchUi();
         });
+
+    connect(videoModel, &models::search::imageLoadingComplete, this,
+        [this](const QModelIndex index) { main->videoList->update(index); });
 
     videoModel->SearchAsync(url, videoModel->GetQuery());
   }

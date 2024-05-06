@@ -13,6 +13,7 @@ namespace models
     struct RowData
     {
       QPixmap thumb;
+      std::string thumbUrl;
       std::string url;
       std::string title;
       std::string created;
@@ -40,16 +41,15 @@ namespace models
     auto SearchAsync(const std::string &url, const std::string &query) -> void;
     auto GetQuery() -> std::string & { return currentQuery; };
     auto GetParsedData() -> piped::search::Response { return parsedData_; };
+    auto LoadImagesAsync() -> void;
 
   signals:
     void searchComplete();
+    void imageLoadingComplete(const QModelIndex index);
 
   private:
     auto createThumbPlaceholder() -> QPixmap;
-
-    auto loadImage(const std::string &url, int index) -> void;
-
-    auto loadImageAsync(const std::string &url, int index) -> void;
+    auto loadImages() -> void;
 
   private:
     QVector<RowData> m_data;

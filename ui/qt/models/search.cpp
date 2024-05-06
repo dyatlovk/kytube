@@ -3,6 +3,8 @@
 #include <future>
 #include <qabstractitemmodel.h>
 #include <qicon.h>
+#include <qnamespace.h>
+#include <qpainter.h>
 #include <qpixmap.h>
 #include <string>
 
@@ -122,12 +124,12 @@ namespace models
   auto search::Search(const std::string &url, const std::string &query) -> void
   {
     currentQuery = query;
-    const auto request = new network::request();
-    const auto searchProvider = new piped::search();
-    const auto response = request->Get(url);
+    network::request request;
+    piped::search searchProvider;
+    const auto response = request.Get(url);
     try
     {
-      searchProvider->MakeFromString(response);
+      searchProvider.MakeFromString(response);
     }
     catch (piped::Exception &e)
     {
@@ -135,10 +137,9 @@ namespace models
       return;
     }
     const auto imgPlaceholder = this->createThumbPlaceholder();
-    const auto parsed = searchProvider->getParsedData();
+    const auto parsed = searchProvider.getParsedData();
     parsedData_ = parsed;
 
-    int c = 0;
     for (const auto &item : parsedData_.items)
     {
       const std::string id = piped::FindVideoId(item.url);
@@ -147,15 +148,12 @@ namespace models
       {
         uploadedDate = *item.uploadedDate;
       }
-      AppendData({imgPlaceholder, item.url, item.title, uploadedDate, item.uploaderName, id, item.type});
-      this->loadImageAsync(item.thumbnail, c);
-      c++;
+      AppendData(
+          {imgPlaceholder, item.thumbnail, item.url, item.title, uploadedDate, item.uploaderName, id, item.type});
     }
 
-    delete searchProvider;
-    delete request;
-
     emit searchComplete();
+    this->LoadImagesAsync();
   }
 
   auto search::SearchAsync(const std::string &url, const std::string &query) -> void
@@ -166,38 +164,53 @@ namespace models
 
   auto search::createThumbPlaceholder() -> QPixmap
   {
-    QPixmap placeholder(178, 100);
-    placeholder.fill(Qt::lightGray);
-    return placeholder;
+    QImage placeholderImage(178, 100, QImage::Format_ARGB32);
+    placeholderImage.fill(Qt::transparent);
+
+    QPainter painter(&placeholderImage);
+
+    painter.setPen(Qt::gray);
+    painter.setOpacity(0.7);
+    painter.drawText(0, 0, 178, 100, Qt::AlignCenter, "Loading...");
+    painter.end();
+
+    QPixmap pixmap = QPixmap::fromImage(placeholderImage);
+    return pixmap;
   }
 
-  auto search::loadImage(const std::string &url, int index) -> void
+  auto search::LoadImagesAsync() -> void
   {
-    network::request request;
-    const auto response = request.Get(url);
-
-    QByteArray bytes(response.c_str(), response.length());
-    QPixmap image;
-    const auto imageLoaded = image.loadFromData(bytes);
-    if (!imageLoaded)
-    {
-      std::cout << "image loading error: " << url << std::endl;
-      return;
-    }
-
-    QModelIndex idx = this->index(index, 1);
-    if (!idx.isValid())
-    {
-      std::cout << "index not valid: " << idx.row() << std::endl;
-      return;
-    }
-
-    m_data[index].thumb = image;
-  }
-
-  auto search::loadImageAsync(const std::string &url, int index) -> void
-  {
-    auto future = std::async(std::launch::async, &search::loadImage, this, url, index);
+    auto future = std::async(std::launch::async, &search::loadImages, this);
     asyncImagesResult = std::move(future);
+  }
+
+  auto search::loadImages() -> void
+  {
+    int index = 0;
+    for (const auto &item : m_data)
+    {
+      network::request request;
+      const auto response = request.Get(item.thumbUrl);
+
+      QByteArray bytes(response.c_str(), response.length());
+      QPixmap image;
+      const auto imageLoaded = image.loadFromData(bytes);
+      if (!imageLoaded)
+      {
+        std::cout << "image loading error: " << item.thumbUrl << std::endl;
+        return;
+      }
+
+      QModelIndex idx = this->index(index, 1);
+      if (!idx.isValid())
+      {
+        std::cout << "index not valid: " << idx.row() << std::endl;
+        return;
+      }
+
+      m_data[index].thumb = image;
+      emit imageLoadingComplete(idx);
+      index++;
+    }
   }
 } // namespace models
