@@ -3,9 +3,9 @@
 #include <QMainWindow>
 #include <QWidget>
 
+#include "Worker.hpp"
 #include "search_model.hpp"
 #include "stream.hpp"
-#include "Worker.hpp"
 #include "ui_main.h"
 
 namespace Ui

@@ -2,6 +2,8 @@
 
 #include <QAbstractTableModel>
 #include <core/providers/piped/Search.h>
+#include <qpixmap.h>
+#include <qstyleditemdelegate.h>
 
 namespace TestQt::models
 {
@@ -11,6 +13,7 @@ namespace TestQt::models
 
     struct RowData
     {
+      QPixmap thumb;
       std::string url;
       std::string title;
       std::string created;
@@ -35,6 +38,9 @@ namespace TestQt::models
     auto Search(const std::string &url, const std::string &query) -> void;
     auto GetQuery() -> std::string & { return currentQuery; };
     auto GetParsedData() -> piped::search::Response { return parsedData_; };
+
+  private:
+    auto createThumbPlaceholder() -> QPixmap;
 
   private:
     QVector<RowData> m_data;

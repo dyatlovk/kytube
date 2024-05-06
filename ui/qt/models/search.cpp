@@ -1,6 +1,9 @@
 #include "search.hpp"
 
 #include <future>
+#include <qabstractitemmodel.h>
+#include <qicon.h>
+#include <qpixmap.h>
 #include <string>
 
 #include "core/network/request.hpp"
@@ -27,7 +30,7 @@ namespace models
 
   int search::columnCount(const QModelIndex &parent) const
   {
-    return 5;
+    return 6;
   }
 
   QVariant search::data(const QModelIndex &index, int role) const
@@ -42,22 +45,27 @@ namespace models
       {
         return row + 1;
       }
-      if (col == 1)
+      if (col == 2)
       {
         return QString(dataRow.title.c_str());
       }
-      if (col == 2)
+      if (col == 3)
       {
         return QString(dataRow.created.c_str());
       }
-      if (col == 3)
+      if (col == 4)
       {
         return QString(dataRow.uploader.c_str());
       }
-      if (col == 4)
+      if (col == 5)
       {
         return QString(dataRow.type.c_str());
       }
+    }
+
+    if (role == Qt::DecorationRole && col == 1)
+    {
+      return QIcon(dataRow.thumb);
     }
 
     return {};
@@ -72,12 +80,14 @@ namespace models
       case 0:
         return QString("#");
       case 1:
-        return QString("Title");
+        return QString("Thumb");
       case 2:
-        return QString("Published");
+        return QString("Title");
       case 3:
-        return QString("Uploader");
+        return QString("Published");
       case 4:
+        return QString("Uploader");
+      case 5:
         return QString("Type");
       default:
         return QString("");
@@ -124,9 +134,11 @@ namespace models
       std::cout << e.what() << std::endl;
       return;
     }
+    const auto imgPlaceholder = this->createThumbPlaceholder();
     const auto parsed = searchProvider->getParsedData();
     parsedData_ = parsed;
 
+    int c = 0;
     for (const auto &item : parsedData_.items)
     {
       const std::string id = piped::FindVideoId(item.url);
@@ -135,7 +147,9 @@ namespace models
       {
         uploadedDate = *item.uploadedDate;
       }
-      AppendData({item.url, item.title, uploadedDate, item.uploaderName, id, item.type});
+      AppendData({imgPlaceholder, item.url, item.title, uploadedDate, item.uploaderName, id, item.type});
+      this->loadImageAsync(item.thumbnail, c);
+      c++;
     }
 
     delete searchProvider;
@@ -148,5 +162,42 @@ namespace models
   {
     auto futureResult = std::async(std::launch::async, &search::Search, this, url, query);
     asyncResult = std::move(futureResult);
+  }
+
+  auto search::createThumbPlaceholder() -> QPixmap
+  {
+    QPixmap placeholder(178, 100);
+    placeholder.fill(Qt::lightGray);
+    return placeholder;
+  }
+
+  auto search::loadImage(const std::string &url, int index) -> void
+  {
+    network::request request;
+    const auto response = request.Get(url);
+
+    QByteArray bytes(response.c_str(), response.length());
+    QPixmap image;
+    const auto imageLoaded = image.loadFromData(bytes);
+    if (!imageLoaded)
+    {
+      std::cout << "image loading error: " << url << std::endl;
+      return;
+    }
+
+    QModelIndex idx = this->index(index, 1);
+    if (!idx.isValid())
+    {
+      std::cout << "index not valid: " << idx.row() << std::endl;
+      return;
+    }
+
+    m_data[index].thumb = image;
+  }
+
+  auto search::loadImageAsync(const std::string &url, int index) -> void
+  {
+    auto future = std::async(std::launch::async, &search::loadImage, this, url, index);
+    asyncImagesResult = std::move(future);
   }
 } // namespace models

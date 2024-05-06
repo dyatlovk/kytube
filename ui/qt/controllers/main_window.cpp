@@ -26,12 +26,18 @@ namespace ui
       , streamModel(new models::stream)
   {
     main->setupUi(this);
+    main->videoList->setIconSize(QSize(178, 100));
     main->videoList->setContextMenuPolicy(Qt::CustomContextMenu);
     log->GetUi()->logContent->appendPlainText(
         logModel->Append({core::datetime::Now(), "", "-----------------"}).c_str());
     log->GetUi()->logContent->appendPlainText(
         logModel->Append({core::datetime::Now(), "Info", "App starting"}).c_str());
     main->videoList->setModel(videoModel);
+    main->videoList->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
+    main->videoList->horizontalHeader()->setStretchLastSection(true);
+    main->videoList->verticalHeader()->setDefaultSectionSize(100);
+    main->videoList->setColumnWidth(0, 70);
+    main->videoList->setColumnWidth(1, 178);
 
     if (!settingsPresent())
       forcePreferences();
@@ -70,6 +76,7 @@ namespace ui
     lockSearchUi();
     if (q.isEmpty())
       return;
+
     const auto query = network::request::UrlEncode(q.toStdString());
     std::string url = settings->value("Piped/apiUrl").toString().toStdString() + "/search?q=";
     url.append(query);
@@ -79,13 +86,15 @@ namespace ui
     log->GetUi()->logContent->setPlainText(
         logModel->Append({core::datetime::Now(), "Info", "Searching " + q.toStdString()}).c_str());
 
+    main->videoList->setIconSize(QSize(178, 100));
+    main->videoList->resizeRowsToContents();
+
     connect(videoModel, &models::search::searchComplete, this,
         [this]()
         {
           const auto foundSize = std::to_string(videoModel->GetParsedData().items.size());
           log->GetUi()->logContent->setPlainText(
               logModel->Append({core::datetime::Now(), "Info", "Found " + foundSize + " items"}).c_str());
-          main->videoList->resizeColumnsToContents();
           unlockSearchUi();
         });
     videoModel->SearchAsync(url, q.toStdString());
@@ -118,7 +127,6 @@ namespace ui
           const auto foundSize = std::to_string(videoModel->GetParsedData().items.size());
           log->GetUi()->logContent->setPlainText(
               logModel->Append({core::datetime::Now(), "Info", "Found " + foundSize + " items"}).c_str());
-          main->videoList->resizeColumnsToContents();
           unlockSearchUi();
         });
 
