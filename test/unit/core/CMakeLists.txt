@@ -10,10 +10,11 @@ file(GLOB SOURCES
     network/request.hpp
     piped/search.hpp
     piped/stream.hpp
+    piped/suggestions.hpp
     datetime/datetime.hpp
     sys/shell.hpp
 )
 add_executable(${EXE_NAME} ${SOURCES} main.cpp)
 target_include_directories(${EXE_NAME} PUBLIC ${EXTERNAL_DIR} ${PROJECT_ROOT})
 target_link_libraries(${EXE_NAME} qtube::core)
-add_test(NAME ${EXE_NAME} COMMAND ${CMAKE_BINARY_DIR}/test/core/${EXE_NAME})
+add_test(NAME ${EXE_NAME} COMMAND ${CMAKE_BINARY_DIR}/test/unit/core/${EXE_NAME})

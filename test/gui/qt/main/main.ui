@@ -325,7 +325,7 @@
   <customwidget>
    <class>SearchInputTest</class>
    <extends>QLineEdit</extends>
-   <header>test/qt/main/search_input.hpp</header>
+   <header>test/gui/qt/main/search_input.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>

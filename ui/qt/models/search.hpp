@@ -2,6 +2,7 @@
 
 #include <QAbstractTableModel>
 #include <future>
+#include <qpixmap.h>
 
 #include "core/providers/piped/Search.h"
 
@@ -11,6 +12,8 @@ namespace models
   {
     struct RowData
     {
+      QPixmap thumb;
+      std::string thumbUrl;
       std::string url;
       std::string title;
       std::string created;
@@ -38,14 +41,21 @@ namespace models
     auto SearchAsync(const std::string &url, const std::string &query) -> void;
     auto GetQuery() -> std::string & { return currentQuery; };
     auto GetParsedData() -> piped::search::Response { return parsedData_; };
+    auto LoadImagesAsync() -> void;
 
   signals:
     void searchComplete();
+    void imageLoadingComplete(const QModelIndex index);
+
+  private:
+    auto createThumbPlaceholder() -> QPixmap;
+    auto loadImages() -> void;
 
   private:
     QVector<RowData> m_data;
     std::string currentQuery;
     piped::search::Response parsedData_;
     std::future<void> asyncResult;
+    std::future<void> asyncImagesResult;
   };
 } // namespace models

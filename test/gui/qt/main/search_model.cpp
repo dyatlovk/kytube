@@ -1,6 +1,7 @@
 #include "search_model.hpp"
 
 #include <fstream>
+#include <qicon.h>
 
 #include "Config.hpp"
 
@@ -23,7 +24,7 @@ namespace TestQt::models
 
   int search::columnCount(const QModelIndex &parent) const
   {
-    return 5;
+    return 6;
   }
 
   QVariant search::data(const QModelIndex &index, int role) const
@@ -38,22 +39,27 @@ namespace TestQt::models
       {
         return row + 1;
       }
-      if (col == 1)
+      if (col == 2)
       {
         return QString(dataRow.title.c_str());
       }
-      if (col == 2)
+      if (col == 3)
       {
         return QString(dataRow.created.c_str());
       }
-      if (col == 3)
+      if (col == 4)
       {
         return QString(dataRow.uploader.c_str());
       }
-      if (col == 4)
+      if (col == 5)
       {
         return QString(dataRow.type.c_str());
       }
+    }
+
+    if (role == Qt::DecorationRole && col == 1)
+    { // Отображение иконок только для второго столбца
+      return QIcon(dataRow.thumb);
     }
 
     return {};
@@ -68,12 +74,14 @@ namespace TestQt::models
       case 0:
         return QString("#");
       case 1:
-        return QString("Title");
+        return QString("Thumb");
       case 2:
-        return QString("Published");
+        return QString("Title");
       case 3:
-        return QString("Uploader");
+        return QString("Published");
       case 4:
+        return QString("Uploader");
+      case 5:
         return QString("Type");
       default:
         return QString("");
@@ -121,6 +129,8 @@ namespace TestQt::models
     const auto parsed = searchProvider->getParsedData();
     parsedData_ = parsed;
 
+    const auto imgPlaceholder = this->createThumbPlaceholder();
+
     for (const auto &item : parsedData_.items)
     {
       std::string id;
@@ -133,9 +143,16 @@ namespace TestQt::models
       id.append(item.uploaderName);
       id.append(item.url);
       id.append(item.type);
-      AppendData({item.url, item.title, uploadedDate, item.uploaderName, id, item.type});
+      AppendData({imgPlaceholder, item.url, item.title, uploadedDate, item.uploaderName, id, item.type});
     }
 
     delete searchProvider;
+  }
+
+  auto search::createThumbPlaceholder() -> QPixmap
+  {
+    QPixmap placeholder(200, 100);
+    placeholder.fill(Qt::lightGray);
+    return placeholder;
   }
 } // namespace TestQt::models

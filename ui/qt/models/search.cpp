@@ -1,6 +1,11 @@
 #include "search.hpp"
 
 #include <future>
+#include <qabstractitemmodel.h>
+#include <qicon.h>
+#include <qnamespace.h>
+#include <qpainter.h>
+#include <qpixmap.h>
 #include <string>
 
 #include "core/network/request.hpp"
@@ -27,7 +32,7 @@ namespace models
 
   int search::columnCount(const QModelIndex &parent) const
   {
-    return 5;
+    return 6;
   }
 
   QVariant search::data(const QModelIndex &index, int role) const
@@ -42,22 +47,27 @@ namespace models
       {
         return row + 1;
       }
-      if (col == 1)
+      if (col == 2)
       {
         return QString(dataRow.title.c_str());
       }
-      if (col == 2)
+      if (col == 3)
       {
         return QString(dataRow.created.c_str());
       }
-      if (col == 3)
+      if (col == 4)
       {
         return QString(dataRow.uploader.c_str());
       }
-      if (col == 4)
+      if (col == 5)
       {
         return QString(dataRow.type.c_str());
       }
+    }
+
+    if (role == Qt::DecorationRole && col == 1)
+    {
+      return QIcon(dataRow.thumb);
     }
 
     return {};
@@ -72,12 +82,14 @@ namespace models
       case 0:
         return QString("#");
       case 1:
-        return QString("Title");
+        return QString("Thumb");
       case 2:
-        return QString("Published");
+        return QString("Title");
       case 3:
-        return QString("Uploader");
+        return QString("Published");
       case 4:
+        return QString("Uploader");
+      case 5:
         return QString("Type");
       default:
         return QString("");
@@ -112,19 +124,20 @@ namespace models
   auto search::Search(const std::string &url, const std::string &query) -> void
   {
     currentQuery = query;
-    const auto request = new network::request();
-    const auto searchProvider = new piped::search();
-    const auto response = request->Get(url);
+    network::request request;
+    piped::search searchProvider;
+    const auto response = request.Get(url);
     try
     {
-      searchProvider->MakeFromString(response);
+      searchProvider.MakeFromString(response);
     }
     catch (piped::Exception &e)
     {
       std::cout << e.what() << std::endl;
       return;
     }
-    const auto parsed = searchProvider->getParsedData();
+    const auto imgPlaceholder = this->createThumbPlaceholder();
+    const auto parsed = searchProvider.getParsedData();
     parsedData_ = parsed;
 
     for (const auto &item : parsedData_.items)
@@ -135,18 +148,69 @@ namespace models
       {
         uploadedDate = *item.uploadedDate;
       }
-      AppendData({item.url, item.title, uploadedDate, item.uploaderName, id, item.type});
+      AppendData(
+          {imgPlaceholder, item.thumbnail, item.url, item.title, uploadedDate, item.uploaderName, id, item.type});
     }
 
-    delete searchProvider;
-    delete request;
-
     emit searchComplete();
+    this->LoadImagesAsync();
   }
 
   auto search::SearchAsync(const std::string &url, const std::string &query) -> void
   {
     auto futureResult = std::async(std::launch::async, &search::Search, this, url, query);
     asyncResult = std::move(futureResult);
+  }
+
+  auto search::createThumbPlaceholder() -> QPixmap
+  {
+    QImage placeholderImage(178, 100, QImage::Format_ARGB32);
+    placeholderImage.fill(Qt::transparent);
+
+    QPainter painter(&placeholderImage);
+
+    painter.setPen(Qt::gray);
+    painter.setOpacity(0.7);
+    painter.drawText(0, 0, 178, 100, Qt::AlignCenter, "Loading...");
+    painter.end();
+
+    QPixmap pixmap = QPixmap::fromImage(placeholderImage);
+    return pixmap;
+  }
+
+  auto search::LoadImagesAsync() -> void
+  {
+    auto future = std::async(std::launch::async, &search::loadImages, this);
+    asyncImagesResult = std::move(future);
+  }
+
+  auto search::loadImages() -> void
+  {
+    int index = 0;
+    for (const auto &item : m_data)
+    {
+      network::request request;
+      const auto response = request.Get(item.thumbUrl);
+
+      QByteArray bytes(response.c_str(), response.length());
+      QPixmap image;
+      const auto imageLoaded = image.loadFromData(bytes);
+      if (!imageLoaded)
+      {
+        std::cout << "image loading error: " << item.thumbUrl << std::endl;
+        return;
+      }
+
+      QModelIndex idx = this->index(index, 1);
+      if (!idx.isValid())
+      {
+        std::cout << "index not valid: " << idx.row() << std::endl;
+        return;
+      }
+
+      m_data[index].thumb = image;
+      emit imageLoadingComplete(idx);
+      index++;
+    }
   }
 } // namespace models

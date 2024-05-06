@@ -1,5 +1,6 @@
 #include "main_window.hpp"
 
+#include <qnamespace.h>
 #include <qpoint.h>
 #include <unistd.h>
 
@@ -16,7 +17,6 @@ namespace TestQt
   {
     main->setupUi(this);
     main->videoList->setContextMenuPolicy(Qt::CustomContextMenu);
-
     main->videoList->setModel(videoModel);
 
     connect(main->videoList, &QTableView::customContextMenuRequested, this, &MainWindow::ShowVideoMenu);
@@ -37,7 +37,10 @@ namespace TestQt
   {
     videoModel->ResetModel();
     videoModel->Search("fake_url", "query");
+    main->videoList->setIconSize(QSize(200, 100));
     main->videoList->resizeColumnsToContents();
+    main->videoList->resizeRowsToContents();
+    main->videoList->verticalHeader()->setDefaultSectionSize(100);
   }
 
   auto MainWindow::CloseWindow() -> void
