@@ -9,7 +9,7 @@ Uses invidious instance [https://docs.piped.video/](https://docs.piped.video/) f
 ## Build from scratch
 Install dependencies. For Debian based distros:
 ```bash
-sudo apt install libssl-dev qttools5-dev qtbase5-dev libqt5gui5 libqt5core5a libqt5widgets5 cmake
+sudo apt install cmake
 ```
 
 Clone third party libraries:
@@ -20,13 +20,10 @@ git submodule update
 
 Build project
 ```bash
-mkdir build
-cd ./build
-cmake -DCMAKE_BUILD_TYPE=<Release|Debug> ..
-make
+cmake --workflow=debug --preset=debug
 ```
 ## Third party libraries
-* [Qt5](https://qt.io)
+* [Qt6](https://qt.io)
 * [OpenSSL](https://www.openssl.org/)
 * [curl](https://curl.se/)
 

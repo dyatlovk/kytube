@@ -1,65 +1,80 @@
 {
-    "version": 6,
-    "cmakeMinimumRequired": {
-        "major": 3,
-        "minor": 25,
-        "patch": 0
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "description": "For more information: http://aka.ms/cmakepresetsvs",
+      "hidden": true,
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/${presetName}/",
+      "installDir": "${sourceDir}/build/${presetName}/install",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
     },
-    "configurePresets": [
+    {
+      "name": "makefile-x86_64-linux-debug",
+      "displayName": "x64 Debug",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "YOUTUBE_QT_BUILD_TESTS": "ON"
+      }
+    },
+    {
+      "name": "makefile-x86_64-linux-release",
+      "displayName": "x64 Release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel",
+        "YOUTUBE_QT_BUILD_TESTS": "OFF"
+      },
+      "inherits": "makefile-x86_64-linux-debug"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug-build-linux",
+      "displayName": "amd64Debug",
+      "configurePreset": "makefile-x86_64-linux-debug",
+      "description": "Debug build"
+    },
+    {
+      "name": "release-build-linux",
+      "displayName": "amd64Release",
+      "configurePreset": "makefile-x86_64-linux-release",
+      "description": "Release build"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "test-amd64",
+      "description": "Testing on linux",
+      "configurePreset": "makefile-x86_64-linux-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "debug",
+      "steps": [
         {
-            "name": "base",
-            "description": "For more information: http://aka.ms/cmakepresetsvs",
-            "hidden": true,
-            "generator": "Unix Makefiles",
-            "binaryDir": "${sourceDir}/build/${presetName}/",
-            "installDir": "${sourceDir}/build/${presetName}/install",
-            "condition": {
-                "type": "equals",
-                "lhs": "${hostSystemName}",
-                "rhs": "Linux"
-            }
+          "type": "configure",
+          "name": "makefile-x86_64-linux-debug"
         },
         {
-            "name": "makefile-x86_64-linux-debug",
-            "displayName": "x64 Debug",
-            "inherits": "base",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "YOUTUBE_QT_BUILD_TESTS": "ON"
-            }
-        },
-        {
-            "name": "makefile-x86_64-linux-release",
-            "displayName": "x64 Release",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "MinSizeRel",
-                "YOUTUBE_QT_BUILD_TESTS": "OFF"
-            },
-            "inherits": "makefile-x86_64-linux-debug"
+          "type": "build",
+          "name": "debug-build-linux"
         }
-    ],
-    "buildPresets": [
-        {
-            "name": "debug-build-linux",
-            "displayName": "amd64Debug",
-            "configurePreset": "makefile-x86_64-linux-debug",
-            "description": "Debug build"
-        },
-        {
-            "name": "release-build-linux",
-            "displayName": "amd64Release",
-            "configurePreset": "makefile-x86_64-linux-release",
-            "description": "Release build"
-        }
-    ],
-    "testPresets": [
-        {
-            "name": "test-amd64",
-            "description": "Testing on linux",
-            "configurePreset": "makefile-x86_64-linux-debug",
-            "output": {
-                "outputOnFailure": true
-            }
-        }
-    ]
+      ]
+    }
+  ]
 }
